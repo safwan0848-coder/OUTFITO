@@ -1,0 +1,506 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outfito Profile</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Montserrat',sans-serif;
+background: radial-gradient(circle at 20% 20%, #1a2533 0%, #060b13 100%);
+color:white;
+min-height:100vh;
+display:flex;
+overflow-x:hidden;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:240px;
+min-height:100vh;
+background:rgba(0,0,0,0.35);
+backdrop-filter:blur(12px);
+border-right:1px solid rgba(255,255,255,0.08);
+padding:40px 20px;
+display:flex;
+flex-direction:column;
+flex-shrink:0;
+}
+
+.logo{
+font-weight:900;
+font-size:22px;
+letter-spacing:4px;
+font-style:italic;
+margin-bottom:50px;
+text-align:center;
+}
+
+.sidebar a{
+display:flex;
+align-items:center;
+gap:12px;
+padding:14px 16px;
+border-radius:12px;
+text-decoration:none;
+color:rgba(255,255,255,0.4);
+margin-bottom:8px;
+transition:0.2s;
+font-size:11px;
+letter-spacing:1px;
+text-transform:uppercase;
+font-weight:600;
+}
+
+.sidebar a:hover{
+background:rgba(255,255,255,0.05);
+color:white;
+}
+
+.sidebar .active{
+background:rgba(255,255,255,0.08);
+color:white;
+}
+
+/* MAIN */
+
+.main{
+flex:1;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:40px;
+width:100%;
+}
+
+/* PROFILE CARD */
+
+.profile-card{
+width:100%;
+max-width:850px;
+min-height:85vh;
+background:rgba(255,255,255,0.03);
+backdrop-filter:blur(20px);
+border:1px solid rgba(255,255,255,0.1);
+border-radius:32px;
+padding:45px 55px;
+display:flex;
+flex-direction:column;
+justify-content:space-evenly;
+box-shadow:0 20px 50px rgba(0,0,0,0.3);
+gap:30px;
+}
+
+/* HEADER */
+
+.profile-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:20px;
+}
+
+.profile-header h1{
+font-weight:900;
+font-size:32px;
+margin-bottom:5px;
+}
+
+.profile-header p{
+font-size:13px;
+color:rgba(255,255,255,0.45);
+margin-bottom:0;
+}
+
+.header-actions{
+display:flex;
+gap:10px;
+}
+
+/* BUTTONS */
+
+.btn-gold{
+background:linear-gradient(135deg,rgba(255,184,46,.9),rgba(255,184,46,.5));
+border:none;
+padding:12px 22px;
+font-size:11px;
+font-weight:700;
+letter-spacing:1px;
+border-radius:14px;
+color:white;
+display:flex;
+align-items:center;
+gap:6px;
+text-decoration:none;
+transition:0.2s;
+}
+
+.btn-coral{
+background:linear-gradient(135deg,rgba(255,95,95,.9),rgba(255,95,95,.5));
+border:none;
+padding:12px 22px;
+font-size:11px;
+font-weight:700;
+letter-spacing:1px;
+border-radius:14px;
+color:white;
+display:flex;
+align-items:center;
+gap:6px;
+text-decoration:none;
+transition:0.2s;
+}
+
+.btn-gold:hover,
+.btn-coral:hover{
+opacity:0.85;
+color:white;
+}
+
+/* AVATAR */
+
+.profile-avatar{
+width:140px;
+height:140px;
+border-radius:50%;
+border:3px solid #ffb82e;
+box-shadow:0 0 25px rgba(255,184,46,.3);
+overflow:hidden;
+margin:0 auto;
+background:#0f172a;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.profile-avatar img{
+width:100%;
+height:100%;
+object-fit:cover;
+object-position:center;
+}
+
+/* DEFAULT ICON */
+
+.default-avatar-icon{
+font-size:80px;
+color:rgba(255,255,255,0.3);
+}
+
+/* MEMBER TEXT */
+
+.member-text{
+font-size:11px;
+color:#9ca3af;
+text-align:center;
+margin-top:10px;
+}
+
+/* FORM */
+
+.form-area{
+width:80%;
+margin:0 auto;
+}
+
+.form-group{
+margin-bottom:20px;
+}
+
+.form-label-custom{
+font-size:10px;
+font-weight:700;
+letter-spacing:2px;
+text-transform:uppercase;
+color:rgba(255,255,255,0.4);
+margin-bottom:8px;
+}
+
+.glass-field{
+display:flex;
+align-items:center;
+gap:14px;
+background:rgba(255,255,255,0.02);
+border:1px solid rgba(255,255,255,0.1);
+border-radius:16px;
+padding:16px 20px;
+font-size:14px;
+font-weight:600;
+color:white;
+word-break:break-all;
+}
+
+/* SECURITY BUTTON */
+
+.security-btn{
+background:transparent;
+border:1px solid rgba(255,255,255,0.2);
+padding:14px 28px;
+border-radius:30px;
+font-size:10px;
+font-weight:700;
+letter-spacing:2px;
+text-transform:uppercase;
+color:white;
+display:inline-flex;
+align-items:center;
+gap:8px;
+text-decoration:none;
+transition:0.3s;
+}
+
+.security-btn:hover{
+background:rgba(255,255,255,0.1);
+}
+
+/* MESSAGES */
+
+.error-msg{
+font-size:13px;
+color:#ff4d4d;
+text-align:center;
+margin-bottom:10px;
+}
+
+.success-msg{
+font-size:13px;
+color:#22c55e;
+text-align:center;
+margin-bottom:10px;
+}
+
+.warning-msg{
+font-size:13px;
+color:#facc15;
+text-align:center;
+margin-bottom:10px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width:768px){
+
+body{
+flex-direction:column;
+}
+
+.sidebar{
+width:100%;
+min-height:auto;
+padding:20px;
+border-right:none;
+border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-nav{
+display:flex;
+overflow-x:auto;
+gap:10px;
+}
+
+.sidebar a{
+margin-bottom:0;
+white-space:nowrap;
+}
+
+.main{
+padding:20px;
+}
+
+.profile-card{
+padding:30px 20px;
+border-radius:24px;
+}
+
+.profile-header{
+flex-direction:column;
+text-align:center;
+}
+
+.header-actions{
+justify-content:center;
+}
+
+.form-area{
+width:100%;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<div class="logo">OUTFITO</div>
+
+<div class="sidebar-nav">
+
+<a class="active" href="{% url 'profile' %}">
+<span class="material-symbols-outlined">person</span>
+Profile
+</a>
+
+<a href="{% url 'address' %}">
+<span class="material-symbols-outlined">location_on</span>
+Address
+</a>
+
+<a href="{% url 'orders' %}">
+<span class="material-symbols-outlined">shopping_bag</span>
+Orders
+</a>
+
+<a href="{% url 'wishlist' %}">
+<span class="material-symbols-outlined">favorite</span>
+Wishlist
+</a>
+
+<a href="{% url 'wallet' %}">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+Wallet
+</a>
+
+</div>
+
+</div>
+
+<div class="main">
+
+<div class="profile-card">
+
+{% if messages %}
+{% for message in messages %}
+{% if forloop.last %}
+<div class="
+{% if message.tags == 'error' %}
+error-msg
+{% elif message.tags == 'success' %}
+success-msg
+{% else %}
+warning-msg
+{% endif %}
+">
+{{ message }}
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+<div class="profile-header">
+
+<div>
+<h1>MY PROFILE</h1>
+<p>Manage your digital identity and account security.</p>
+</div>
+
+<div class="header-actions">
+
+<a href="{% url 'logout' %}" class="btn-coral">
+<span class="material-symbols-outlined">logout</span>
+Logout
+</a>
+
+<a href="{% url 'edit-profile' %}" class="btn-gold">
+<span class="material-symbols-outlined">edit</span>
+Edit Profile
+</a>
+
+</div>
+
+</div>
+
+<div>
+
+<div class="profile-avatar">
+
+{% if profile.profile_image %}
+<img src="{{ profile.profile_image.url }}" alt="Profile Image">
+
+{% elif profile.google_image %}
+<img src="{{ profile.google_image }}" alt="Google Profile Image">
+
+{% else %}
+<span class="material-symbols-outlined default-avatar-icon">person</span>
+{% endif %}
+
+</div>
+
+<p class="member-text">
+Member Since <span style="color:#ffb82e">{{ user.date_joined|date:"M d, Y" }}</span>
+</p>
+
+</div>
+
+<div class="form-area">
+
+<div class="form-group">
+
+<div class="form-label-custom">Full Name</div>
+
+<div class="glass-field">
+<span class="material-symbols-outlined">person</span>
+{{ user.username }}
+</div>
+
+</div>
+
+<div class="form-group">
+
+<div class="form-label-custom">Email Address</div>
+
+<div class="glass-field">
+<span class="material-symbols-outlined">mail</span>
+{{ user.email }}
+</div>
+
+</div>
+
+<div class="form-group">
+
+<div class="form-label-custom">Phone Connection</div>
+
+<div class="glass-field">
+<span class="material-symbols-outlined">call</span>
+{{ profile.phone|default:"Not added" }}
+</div>
+
+</div>
+
+</div>
+
+<div class="text-center">
+
+{% if not profile.google_image %}
+<a href="{% url 'change-password' %}" class="security-btn">
+<span class="material-symbols-outlined">key</span>
+Update Security Credentials
+</a>
+{% endif %}
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>

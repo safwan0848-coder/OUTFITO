@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Outfito | User Management</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<style>
+
+body{
+font-family:'Inter',sans-serif;
+background:#f6f7fb;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:260px;
+height:100vh;
+position:fixed;
+background:white;
+border-right:1px solid #e6e6e6;
+padding:25px;
+display:flex;
+flex-direction:column;
+}
+
+.logo{
+font-family:'Playfair Display',serif;
+font-size:28px;
+color:#0f766e;
+font-weight:600;
+margin-bottom:30px;
+}
+
+.sidebar a{
+display:flex;
+align-items:center;
+gap:10px;
+padding:10px 12px;
+border-radius:8px;
+text-decoration:none;
+color:#555;
+margin-bottom:5px;
+font-size:14px;
+}
+
+.sidebar a:hover{
+background:#f0fdfa;
+color:#0f766e;
+}
+
+.sidebar a.active{
+background:#ecfdf5;
+color:#10b981;
+font-weight:500;
+}
+
+.logout-btn{
+margin-top:auto;
+background:#ef4444;
+color:white!important;
+justify-content:center;
+}
+
+.logout-btn:hover{
+background:#b91c1c;
+}
+
+/* MAIN */
+
+.main{
+margin-left:260px;
+padding:40px;
+}
+
+.page-title{
+font-family:'Playfair Display',serif;
+font-size:34px;
+font-weight:600;
+}
+
+.title-line{
+width:80px;
+height:4px;
+background:#10b981;
+border-radius:10px;
+margin-top:5px;
+}
+
+/* CARD */
+
+.card-box{
+background:white;
+border-radius:18px;
+padding:25px;
+box-shadow:0 5px 20px rgba(0,0,0,0.05);
+}
+
+/* SEARCH */
+
+.search-input{
+border-radius:8px;
+height:40px;
+}
+
+/* TABLE */
+
+table{
+font-size:14px;
+}
+
+thead{
+color:#888;
+font-size:12px;
+text-transform:uppercase;
+}
+
+.user-img{
+width:36px;
+height:36px;
+border-radius:50%;
+margin-right:10px;
+}
+
+/* STATUS */
+
+.status-active{
+background:#d1fae5;
+color:#065f46;
+padding:5px 12px;
+border-radius:20px;
+font-size:12px;
+}
+
+.status-block{
+background:#fee2e2;
+color:#991b1b;
+padding:5px 12px;
+border-radius:20px;
+font-size:12px;
+}
+
+/* ACTION BUTTONS */
+
+.btn-block{
+background:#ef4444;
+color:white;
+border:none;
+font-size:12px;
+padding:6px 12px;
+}
+
+.btn-block:hover{
+background:#b91c1c;
+}
+
+.btn-unblock{
+background:#10b981;
+color:white;
+border:none;
+font-size:12px;
+padding:6px 12px;
+}
+
+.btn-unblock:hover{
+background:#047857;
+}
+
+/* PAGINATION */
+
+.pagination-btn{
+padding:6px 12px;
+border-radius:6px;
+border:1px solid #ddd;
+background:white;
+font-size:13px;
+}
+
+.pagination-btn:hover{
+background:#f0fdfa;
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+<div class="logo">Outfito</div>
+
+<a href="#" class="active">
+<span class="material-icons">group</span>
+Customers
+</a>
+
+<a href="#">
+<span class="material-icons">inventory</span>
+Products
+</a>
+
+<a href="#">
+<span class="material-icons">shopping_bag</span>
+Orders
+</a>
+
+<a href="#">
+<span class="material-icons">local_offer</span>
+Offers
+</a>
+
+<a href="{% url 'admin_logout' %}"
+class="logout-btn sidebar-link"
+onclick="return confirm('Logout?')">
+
+<span class="material-icons">logout</span>
+Logout
+
+</a>
+
+</div>
+
+
+<!-- MAIN -->
+
+<div class="main">
+
+<div class="mb-4">
+
+<div class="page-title">User Management</div>
+<div class="title-line"></div>
+
+</div>
+
+
+<div class="card-box">
+
+<!-- HEADER -->
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<h5 class="fw-semibold m-0">Users</h5>
+
+<form method="GET" class="d-flex gap-2">
+
+<input
+type="text"
+name="search"
+class="form-control search-input"
+placeholder="Search user email..."
+value="{{ request.GET.search }}"
+>
+
+<button class="btn btn-success btn-sm">Search</button>
+
+<a href="{% url 'admin-user-management' %}" class="btn btn-outline-secondary btn-sm">
+Clear
+</a>
+
+</form>
+
+</div>
+
+
+<!-- TABLE -->
+
+<div class="table-responsive">
+
+<table class="table align-middle">
+
+<thead>
+<tr>
+<th>SL</th>
+<th>User</th>
+<th>Email</th>
+<th>Status</th>
+<th>Joined</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for user in users %}
+
+<tr>
+
+<td>{{ users.start_index|add:forloop.counter0 }}</td>
+
+<td class="d-flex align-items-center">
+
+<img
+src="https://ui-avatars.com/api/?name={{user.username}}"
+class="user-img"
+>
+
+{{ user.username }}
+
+</td>
+
+<td>{{ user.email }}</td>
+
+<td>
+
+{% if user.is_active %}
+
+<span class="status-active">Active</span>
+
+{% else %}
+
+<span class="status-block">Blocked</span>
+
+{% endif %}
+
+</td>
+
+<td>{{ user.date_joined|date:"M d Y" }}</td>
+
+<td>
+
+{% if user.is_active %}
+
+<a href="{% url 'admin-toggle-user' user.id %}"
+class="btn btn-block btn-sm"
+onclick="return confirm('Block this user?')">
+
+Block
+
+</a>
+
+{% else %}
+
+<a href="{% url 'admin-toggle-user' user.id %}"
+class="btn btn-unblock btn-sm"
+onclick="return confirm('Unblock this user?')">
+
+Unblock
+
+</a>
+
+{% endif %}
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+
+<!-- PAGINATION -->
+
+<div class="d-flex justify-content-between align-items-center mt-3">
+
+<div>
+Page {{ users.number }} of {{ users.paginator.num_pages }}
+</div>
+
+<div class="d-flex gap-2">
+
+{% if users.has_previous %}
+
+<a class="pagination-btn"
+href="?page={{ users.previous_page_number }}&search={{ request.GET.search }}">
+Previous
+</a>
+
+{% endif %}
+
+{% if users.has_next %}
+
+<a class="pagination-btn"
+href="?page={{ users.next_page_number }}&search={{ request.GET.search }}">
+Next
+</a>
+
+{% endif %}
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+</body>
+</html>

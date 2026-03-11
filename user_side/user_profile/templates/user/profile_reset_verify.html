@@ -1,0 +1,291 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OUTFITO - Verify OTP</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet"/>
+
+<style>
+
+:root{
+--primary:#0d59f2;
+--accent-green:#ccff00;
+--background-dark:#101622;
+--navy-surface:#182234;
+--border-slate:#314368;
+}
+
+body{
+font-family:'Manrope',sans-serif;
+background-color:var(--background-dark);
+color:white;
+margin:0;
+overflow:hidden;
+}
+
+.vh-100{height:100vh;}
+
+.left-section{
+background-image:url("{% static 'images/Signup.jpeg' %}");
+background-size:cover;
+background-position:center;
+position:relative;
+}
+
+.left-overlay{
+position:absolute;
+inset:0;
+background:linear-gradient(to top,var(--background-dark),rgba(16,22,34,0.6),transparent);
+}
+
+.otp-input{
+width:55px;
+height:65px;
+font-size:24px;
+text-align:center;
+font-weight:800;
+border-radius:12px;
+border:2px solid var(--border-slate);
+background:var(--navy-surface);
+color:white;
+transition:all .2s;
+}
+
+.otp-input:focus{
+border-color:var(--primary);
+outline:none;
+box-shadow:0 0 0 4px rgba(13,89,242,0.2);
+}
+
+.verify-btn{
+background:var(--accent-green);
+border:none;
+padding:16px;
+font-weight:800;
+color:black;
+border-radius:50px;
+width:100%;
+font-size:1.1rem;
+transition:.2s;
+}
+
+.verify-btn:hover{
+background:#b8e600;
+transform:scale(.99);
+}
+
+.timer-text{
+color:var(--accent-green);
+font-weight:700;
+}
+
+.error-text{
+color:#ff6b6b;
+font-size:13px;
+text-align:center;
+margin-bottom:15px;
+}
+
+.success-text{
+color:#22c55e;
+font-size:13px;
+text-align:center;
+margin-bottom:15px;
+}
+
+.warning-text{
+color:#facc15;
+font-size:13px;
+text-align:center;
+margin-bottom:15px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container-fluid vh-100">
+
+<div class="row h-100">
+
+<div class="col-lg-6 d-none d-lg-flex flex-column justify-content-between p-5 left-section">
+
+<div class="left-overlay"></div>
+
+<div class="position-relative">
+
+<div class="d-flex align-items-center gap-3">
+
+<div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+<span class="material-symbols-outlined text-white">auto_awesome</span>
+</div>
+
+<h2 class="fw-bold m-0 tracking-tighter">OUTFITO</h2>
+
+</div>
+
+</div>
+
+<div class="position-relative">
+
+<h1 class="display-3 fw-bold mb-3">
+Redefining<br>Digital Fashion
+</h1>
+
+<div style="width:80px;height:6px;background:var(--primary);border-radius:10px;"></div>
+
+</div>
+
+</div>
+
+<div class="col-lg-6 d-flex align-items-center justify-content-center bg-background-dark p-4">
+
+<div style="width:100%;max-width:420px;">
+
+<div class="mb-5">
+
+<h2 class="fw-bold display-6">Verify OTP</h2>
+
+<p class="text-secondary">
+Enter the 6-digit code sent to <br>
+<span class="text-white fw-bold">{{ email }}</span>
+</p>
+
+</div>
+
+{% if messages %}
+{% for message in messages %}
+{% if forloop.last %}
+<div class="
+{% if message.tags == 'error' %}
+error-text
+{% elif message.tags == 'success' %}
+success-text
+{% else %}
+warning-text
+{% endif %}
+">
+{{ message }}
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+<form method="POST" id="otp-form">
+
+{% csrf_token %}
+
+<div class="d-flex justify-content-between mb-4">
+
+<input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" onkeyup="moveNext(this,event)">
+<input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" onkeyup="moveNext(this,event)">
+<input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" onkeyup="moveNext(this,event)">
+<input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" onkeyup="moveNext(this,event)">
+<input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" onkeyup="moveNext(this,event)">
+<input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" onkeyup="moveNext(this,event)">
+
+</div>
+
+<input type="hidden" name="otp" id="otp_value">
+
+<div class="text-center mb-4 text-secondary small">
+
+<span class="material-symbols-outlined align-middle fs-6">schedule</span>
+
+Code expires in:
+<span id="timer" class="timer-text">--:--</span>
+
+</div>
+
+<button type="submit" class="verify-btn shadow-lg">
+Verify Code
+</button>
+
+</form>
+
+<p class="text-center mt-5 text-secondary">
+
+Didn't receive code?
+
+<a href="{% url 'start-password-reset' %}" class="text-primary fw-bold text-decoration-none ms-1">
+Resend
+</a>
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+function moveNext(element,event){
+
+const inputs=document.querySelectorAll(".otp-input");
+const idx=Array.from(inputs).indexOf(element);
+
+if(element.value.length===1 && idx<inputs.length-1){
+inputs[idx+1].focus();
+}
+
+if(event.key==="Backspace" && element.value.length===0 && idx>0){
+inputs[idx-1].focus();
+}
+
+updateOTP();
+
+}
+
+function updateOTP(){
+
+let otp="";
+document.querySelectorAll(".otp-input").forEach(input=>{
+otp+=input.value;
+});
+
+document.getElementById("otp_value").value=otp;
+
+}
+
+let seconds=parseInt("{{ remaining_seconds|default:0 }}");
+
+function updateTimer(){
+
+const timerDisplay=document.getElementById("timer");
+
+if(seconds<=0){
+timerDisplay.innerHTML="Expired";
+timerDisplay.classList.replace("timer-text","text-danger");
+return;
+}
+
+let min=Math.floor(seconds/60);
+let sec=seconds%60;
+
+timerDisplay.innerHTML=`${min}:${sec<10?'0':''}${sec}`;
+
+seconds--;
+
+}
+
+if(seconds>0){
+updateTimer();
+setInterval(updateTimer,1000);
+}
+
+</script>
+
+</body>
+</html>

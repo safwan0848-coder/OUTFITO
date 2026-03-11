@@ -1,0 +1,627 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OUTFITO | Identity Through Wear</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+
+        :root {
+            --emerald-brand: #00845a; /* Matching the exact green from the cart image */
+            --bg-navy: #0a0e1a;
+            --card-dark: #0f1422;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-navy);
+            color: #ffffff;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- CAROUSEL SYSTEM --- */
+        .hero-carousel {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease-in-out, transform 1.5s ease;
+            transform: scale(1.1);
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 8vw, 5.5rem);
+            line-height: 1;
+            letter-spacing: -0.04em;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        /* --- CATEGORY CARDS (Match Image 1) --- */
+        .category-card {
+            position: relative;
+            height: 480px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #161b29;
+            cursor: pointer;
+        }
+
+        .category-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .category-card:hover .category-img {
+            transform: scale(1.1);
+        }
+
+        .category-content {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 30%, rgba(10, 14, 26, 0.95) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .shop-btn {
+            background: #ffffff;
+            color: #000000;
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin-top: 1.5rem;
+            transition: all 0.3s ease;
+            opacity: 0.9;
+        }
+
+        .category-card:hover .shop-btn {
+            background: var(--emerald-brand);
+            color: white;
+            opacity: 1;
+            transform: translateY(-5px);
+        }
+
+        /* --- PRODUCT CARDS (Match Image 8c5cc0) --- */
+        .product-card {
+            background: var(--card-dark);
+            border-radius: 12px;
+            padding: 0;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .product-img-box {
+            position: relative;
+            aspect-ratio: 1/1.2;
+            background: #ffffff;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .product-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .product-card:hover .product-img-box img {
+            transform: scale(1.05);
+        }
+
+        /* EXACT CART BUTTON FROM IMAGE 8c5ca2 */
+        .cart-icon-btn {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            width: 38px;
+            height: 38px;
+            background: var(--emerald-brand);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cart-icon-btn:hover {
+            transform: scale(1.1) rotate(-8deg);
+            filter: brightness(1.2);
+        }
+
+        .discount-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #2d0a0a; /* Dark maroon/red tag from image */
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .price-new {
+            font-weight: 900;
+            font-size: 1.1rem;
+        }
+
+        .price-old {
+            color: #4b5563;
+            text-decoration: line-through;
+            font-size: 0.8rem;
+            margin-right: 8px;
+        }
+
+        /* --- NAV SEARCH --- */
+        .nav-search {
+            background: #161b29;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 99px;
+            padding: 0.4rem 1rem;
+            width: 240px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* CUSTOM ANIMATIONS */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-up {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV BAR -->
+<nav class="fixed top-0 w-full z-50 bg-[#0a0e1a]/90 backdrop-blur-md border-b border-white/5 py-3 px-6">
+<div class="max-w-[1440px] mx-auto flex justify-between items-center">
+
+    <!-- LOGO -->
+    <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-white rounded flex items-center justify-center">
+            <img src="{% static 'images/outfito.png' %}">
+        </div>
+        <span class="text-xl font-black italic tracking-tighter uppercase">OUTFITO</span>
+    </div>
+
+    <!-- CENTER MENU -->
+    <div class="hidden lg:flex items-center gap-8 text-xs font-bold text-gray-400 uppercase tracking-widest">
+        <a href="#" class="text-white border-b-2 border-emerald-500 pb-1">Home</a>
+        <a href="#categories" class="hover:text-white transition">Categories</a>
+        <a href="#vault" class="hover:text-white transition">Vault</a>
+        <a href="#about" class="hover:text-white transition">About</a>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="flex items-center gap-6">
+
+        <!-- SEARCH -->
+        <div class="nav-search hidden md:flex">
+            <i class="fa-solid fa-magnifying-glass text-gray-500 text-xs mr-2"></i>
+            <input type="text" placeholder="Search outfits..." class="bg-transparent text-[10px] w-full focus:outline-none text-white font-bold">
+        </div>
+
+        <div class="flex items-center gap-4 text-white">
+
+            <!-- WISHLIST -->
+            <i class="fa-regular fa-heart cursor-pointer hover:text-emerald-500"></i>
+
+            <!-- CART -->
+            <div class="relative">
+                <i class="fa-solid fa-cart-shopping cursor-pointer hover:text-emerald-500"></i>
+                <span class="absolute -top-2 -right-2 bg-emerald-500 text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-bold">2</span>
+            </div>
+
+            <!-- USER ACCOUNT -->
+<div class="relative">
+
+{% if request.user.is_authenticated %}
+
+<!-- USER ICON -->
+<i id="userMenuBtn" class="fa-regular fa-user cursor-pointer hover:text-emerald-500"></i>
+
+<!-- DROPDOWN -->
+<div id="userDropdown"
+     class="absolute right-0 mt-3 w-48 bg-[#161b29] border border-white/10 rounded-lg shadow-lg hidden">
+
+    <a href="{% url 'profile' %}" class="block px-4 py-3 text-sm hover:bg-white/5">
+        Profile
+    </a>
+
+    <a href="{% url 'address-list' %}" class="block px-4 py-3 text-sm hover:bg-white/5">
+        Address
+    </a>
+
+    <a href="{% url 'wallet' %}" class="block px-4 py-3 text-sm hover:bg-white/5">
+        Wallet
+    </a>
+
+    <a href="{% url 'orders' %}" class="block px-4 py-3 text-sm hover:bg-white/5">
+        Orders
+    </a>
+
+    <hr class="border-white/10">
+
+    <a href="{% url 'logout' %}" class="block px-4 py-3 text-sm text-red-400 hover:bg-white/5">
+        Logout
+    </a>
+
+</div>
+
+{% else %}
+
+<!-- LOGIN -->
+<a href="{% url 'login' %}">
+    <i class="fa-regular fa-user cursor-pointer hover:text-emerald-500"></i>
+</a>
+
+{% endif %}
+
+</div>
+
+        </div>
+
+    </div>
+
+</div>
+</nav>
+
+    <!-- HERO CAROUSEL (3 Slides) -->
+    <section class="hero-carousel">
+        <!-- Slide 1 -->
+        <div class="slide active" id="slide-1">
+            <img src="{% static 'images/head1.png' %}" class="w-full h-full object-cover" alt="">
+            <div class="absolute inset-0 bg-black/40"></div>
+            <div class="absolute inset-0 flex items-center px-12">
+                <div class="max-w-4xl animate-up">
+                    <h1 class="hero-title text-white italic">ITS NOT A <br>PRODUCT ITS AN <br><span class="text-emerald-500">IDENTITY</span></h1>
+                    <div class="flex gap-12 mt-10">
+                        <div><p class="text-4xl font-black italic">2.5k+</p><p class="text-[10px] text-gray-400 uppercase font-bold tracking-[0.3em]">New Styles</p></div>
+                        <div><p class="text-4xl font-black italic">15k+</p><p class="text-[10px] text-gray-400 uppercase font-bold tracking-[0.3em]">Active Rebels</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 2 -->
+        <div class="slide" id="slide-2">
+            <img src="{% static 'images/Head2.png' %}" class="w-full h-full object-cover" alt="old">
+            <div class="absolute inset-0 bg-black/50"></div>
+            <div class="absolute inset-0 flex items-center px-12">
+                <div class="max-w-4xl">
+                    <h1 class="hero-title text-white italic">VINTAGE <br>REMASTERED <br><span class="text-white/40">ARCHIVE</span></h1>
+                    <button class="mt-8 bg-emerald-600 text-white px-8 py-3 rounded font-black text-xs uppercase tracking-widest hover:bg-white hover:text-black transition">Explore Archive</button>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 3 -->
+        <div class="slide" id="slide-3">
+            <img src="{% static 'images/Head3.png' %}" class="w-full h-full object-cover" alt="">
+            <div class="absolute inset-0 bg-black/40"></div>
+            <div class="absolute inset-0 flex items-center px-12">
+                <div class="max-w-4xl">
+                    <h1 class="hero-title text-white italic">STREET <br>CULTURE <br><span class="text-emerald-500">UNLEASHED</span></h1>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carousel Indicators -->
+        <div class="absolute bottom-10 left-12 flex gap-4 z-20">
+            <button onclick="setSlide(0)" class="w-12 h-1 bg-white/30 rounded overflow-hidden relative"><div id="bar-0" class="h-full bg-emerald-500 w-0"></div></button>
+            <button onclick="setSlide(1)" class="w-12 h-1 bg-white/30 rounded overflow-hidden relative"><div id="bar-1" class="h-full bg-emerald-500 w-0"></div></button>
+            <button onclick="setSlide(2)" class="w-12 h-1 bg-white/30 rounded overflow-hidden relative"><div id="bar-2" class="h-full bg-emerald-500 w-0"></div></button>
+        </div>
+    </section>
+
+    <!-- TRENDING CATEGORIES -->
+    <section id="categories" class="max-w-[1440px] mx-auto px-6 py-24">
+        <div class="flex justify-between items-end mb-12">
+            <div>
+                <h2 class="text-3xl font-black italic uppercase tracking-tighter">Trending Categories</h2>
+                <p class="text-gray-500 text-sm font-medium">Select your favorite category to explore their latest model</p>
+            </div>
+            <a href="#" class="text-emerald-500 text-[10px] font-black uppercase flex items-center gap-2">View All Categories <i class="fa-solid fa-arrow-right-long"></i></a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Cat 1 -->
+            <div class="category-card">
+                <img src="{% static 'images/oldmoney.jpeg' %}" class="category-img" alt="">
+                <div class="category-content">
+                    <h3 class="text-2xl font-black italic uppercase">Old Money</h3>
+                    <p class="text-[11px] text-gray-400 mt-1">Timeless aesthetics for the modern refined soul.</p>
+                    <button class="shop-btn">Shop Collection</button>
+                </div>
+            </div>
+            <!-- Cat 2 -->
+            <div class="category-card">
+                <img src="{% static 'images/freestyle.jpeg' %}" class="category-img" alt="">
+                <div class="category-content">
+                    <h3 class="text-2xl font-black italic uppercase">Free Style</h3>
+                    <p class="text-[11px] text-gray-400 mt-1">Unapologetic expression through streetwear.</p>
+                    <button class="shop-btn">Shop Collection</button>
+                </div>
+            </div>
+            <!-- Cat 3 -->
+            <div class="category-card">
+                <img src="{% static 'images/retrojersey.jpeg' %}" class="category-img" alt="">
+                <div class="category-content">
+                    <h3 class="text-2xl font-black italic uppercase">Retro Jerseys</h3>
+                    <p class="text-[11px] text-gray-400 mt-1">Iconic sporting moments reborn for the street.</p>
+                    <button class="shop-btn">Shop Collection</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRENDING PRODUCTS -->
+    <section class="max-w-[1440px] mx-auto px-6 py-24 border-t border-white/5">
+        <div class="flex justify-between items-end mb-12">
+            <div>
+                <h2 class="text-3xl font-black italic uppercase tracking-tighter">Trending Products</h2>
+                <p class="text-gray-500 text-sm font-medium">Discover the hottest items selected just for you</p>
+            </div>
+            <button class="bg-white/5 border border-white/10 px-6 py-2 rounded text-[10px] font-black uppercase hover:bg-white hover:text-black transition">View All</button>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Product 1 -->
+            <div class="product-card">
+                <div class="product-img-box">
+                    <img src="{% static 'images/sp1.jpeg' %}" alt="">
+                    <div class="discount-badge">-25%</div>
+                    <div class="cart-icon-btn">
+                        <i class="fa-solid fa-cart-shopping text-xs"></i>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest mb-1">PANT</p>
+                    <h4 class="font-bold text-sm mb-3">Handcrafted Denim</h4>
+                    <div class="flex items-center">
+                        <span class="price-old">₹9,999.00</span>
+                        <span class="price-new italic italic">₹7,499.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product-card">
+                <div class="product-img-box">
+                    <img src="{% static 'images/st1.jpeg' %}" alt="">
+                    <div class="discount-badge">-15%</div>
+                    <div class="cart-icon-btn">
+                        <i class="fa-solid fa-cart-shopping text-xs"></i>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest mb-1">TEES</p>
+                    <h4 class="font-bold text-sm mb-3">LeBron James tees</h4>
+                    <div class="flex items-center">
+                        <span class="price-old">₹2,499.00</span>
+                        <span class="price-new italic italic">₹1,999.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product-card">
+                <div class="product-img-box">
+                    <img src="{% static 'images/os1.jpeg' %}" alt="">
+                    <div class="discount-badge">-30%</div>
+                    <div class="cart-icon-btn">
+                        <i class="fa-solid fa-cart-shopping text-xs"></i>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest mb-1">SHIRT</p>
+                    <h4 class="font-bold text-sm mb-3">Patchwork Edition</h4>
+                    <div class="flex items-center">
+                        <span class="price-old">₹2,999.00</span>
+                        <span class="price-new italic italic">₹2,199.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="product-card">
+                <div class="product-img-box">
+                    <img src="{% static 'images/jt1.jpeg' %}" alt="">
+                    <div class="discount-badge">-10%</div>
+                    <div class="cart-icon-btn">
+                        <i class="fa-solid fa-cart-shopping text-xs"></i>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest mb-1">ITEM</p>
+                    <h4 class="font-bold text-sm mb-3">Brazil National</h4>
+                    <div class="flex items-center">
+                        <span class="price-old">₹1,499.00</span>
+                        <span class="price-new italic italic">₹1,299.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#05070a] pt-24 pb-10 border-t border-white/5">
+        <div class="max-w-[1440px] mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+            <div>
+                <div class="flex items-center gap-2 mb-6">
+                    <i class="fa-solid fa-shirt text-emerald-500 text-2xl"></i>
+                    <span class="text-xl font-black italic uppercase">OUTFITO</span>
+                </div>
+                <p class="text-gray-500 text-xs leading-relaxed max-w-xs mb-8">Your trusted destination for genuine street apparel. Identity forged through quality and exclusivity.</p>
+                <div class="flex gap-4">
+                    <i class="fa-brands fa-facebook hover:text-emerald-500 cursor-pointer"></i>
+                    <i class="fa-brands fa-instagram hover:text-emerald-500 cursor-pointer"></i>
+                    <i class="fa-brands fa-tiktok hover:text-emerald-500 cursor-pointer"></i>
+                </div>
+            </div>
+            
+            <div>
+                <h4 class="text-[10px] font-black uppercase tracking-widest mb-6 border-l-2 border-emerald-500 pl-4">Shop By Brand</h4>
+                <ul class="text-[11px] text-gray-500 space-y-3">
+                    <li class="hover:text-white cursor-pointer transition">Limited Drops</li>
+                    <li class="hover:text-white cursor-pointer transition">Retro Signature</li>
+                    <li class="hover:text-white cursor-pointer transition">Street Essentials</li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-[10px] font-black uppercase tracking-widest mb-6 border-l-2 border-emerald-500 pl-4">Support</h4>
+                <ul class="text-[11px] text-gray-500 space-y-3">
+                    <li class="hover:text-white cursor-pointer transition">Track Order</li>
+                    <li class="hover:text-white cursor-pointer transition">Returns Policy</li>
+                    <li class="hover:text-white cursor-pointer transition">Help Center</li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-[10px] font-black uppercase tracking-widest mb-6 border-l-2 border-emerald-500 pl-4">Company</h4>
+                <ul class="text-[11px] text-gray-500 space-y-3">
+                    <li class="hover:text-white cursor-pointer transition">About Us</li>
+                    <li class="hover:text-white cursor-pointer transition">Privacy Policy</li>
+                    <li class="hover:text-white cursor-pointer transition">Terms of Service</li>
+                </ul>
+            </div>
+        </div>
+        <div class="text-center py-8 border-t border-white/5 text-[9px] font-bold text-gray-600 uppercase tracking-[0.4em]">
+            © 2024 Outfito. All rights reserved.
+        </div>
+    </footer>
+
+<script>
+
+/* ---------------- HERO CAROUSEL ---------------- */
+
+let currentSlide = 0;
+const slides = document.querySelectorAll('.slide');
+const bars = [
+    document.getElementById('bar-0'),
+    document.getElementById('bar-1'),
+    document.getElementById('bar-2')
+];
+
+let autoTimer;
+let progressInterval;
+
+function setSlide(index) {
+
+    slides.forEach(s => s.classList.remove('active'));
+    slides[index].classList.add('active');
+
+    currentSlide = index;
+
+    resetBars();
+    startProgress();
+
+    clearTimeout(autoTimer);
+
+    autoTimer = setTimeout(() => {
+        setSlide((currentSlide + 1) % 3);
+    }, 6000);
+
+}
+
+function resetBars() {
+
+    bars.forEach(b => {
+        if(b) b.style.width = '0%';
+    });
+
+    clearInterval(progressInterval);
+
+}
+
+function startProgress() {
+
+    let width = 0;
+    const bar = bars[currentSlide];
+
+    progressInterval = setInterval(() => {
+
+        if (width >= 100) {
+            clearInterval(progressInterval);
+        } 
+        else {
+            width += 1.67;
+            if(bar) bar.style.width = width + '%';
+        }
+
+    }, 100);
+
+}
+
+// Initialize carousel
+setSlide(0);
+
+
+
+/* ---------------- USER DROPDOWN MENU ---------------- */
+
+const userBtn = document.getElementById("userMenuBtn");
+const dropdown = document.getElementById("userDropdown");
+
+if(userBtn && dropdown){
+
+    userBtn.addEventListener("click", function(e){
+
+        e.stopPropagation();
+        dropdown.classList.toggle("hidden");
+
+    });
+
+    document.addEventListener("click", function(e){
+
+        if(!dropdown.contains(e.target) && !userBtn.contains(e.target)){
+            dropdown.classList.add("hidden");
+        }
+
+    });
+
+}
+
+</script>
+</body>
+</html>

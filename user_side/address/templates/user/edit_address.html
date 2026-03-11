@@ -1,0 +1,303 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Edit Address | OUTFITO</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
+
+<style>
+:root{
+--color-background:#0A0F18;
+--color-card:#0a1627;
+--color-border:#161e2c;
+--color-accent:#10b981;
+--color-muted:#9ca3af;
+--text-heading:#f9fafb;
+--text-body:#d1d5db;
+}
+
+body{
+background-color:var(--color-background);
+font-family:'Inter',sans-serif;
+color:var(--text-body);
+margin:0;
+}
+
+.navbar-custom{
+border-bottom:1px solid var(--color-border);
+background-color:var(--color-background);
+padding:20px 40px;
+}
+
+.navbar-brand{
+font-family:'Playfair Display',serif;
+font-size:28px;
+font-weight:700;
+color:#fff;
+letter-spacing:.05em;
+text-decoration:none;
+}
+
+.nav-link{
+font-size:14px;
+color:#d1d5db;
+margin-left:30px;
+text-decoration:none;
+transition:color .3s;
+}
+
+.nav-link:hover{
+color:var(--color-accent);
+}
+
+.search-box{
+background-color:var(--color-card);
+border:1px solid var(--color-border);
+border-radius:50px;
+padding:8px 16px;
+width:250px;
+font-size:14px;
+}
+
+.page{
+display:flex;
+min-height:calc(100vh - 80px);
+}
+
+.sidebar{
+width:260px;
+border-right:1px solid var(--color-border);
+padding:40px 20px;
+}
+
+.sidebar a{
+display:block;
+padding:14px 20px;
+border-radius:8px;
+text-decoration:none;
+font-weight:500;
+font-size:15px;
+color:#d1d5db;
+margin-bottom:16px;
+}
+
+.sidebar a:hover,
+.sidebar a.active{
+background-color:var(--color-card);
+color:#fff;
+}
+
+.content{
+flex:1;
+display:flex;
+justify-content:center;
+align-items:flex-start;
+padding:40px 20px;
+}
+
+.form-card{
+background-color:var(--color-card);
+border-radius:20px;
+padding:50px 40px;
+max-width:800px;
+width:100%;
+box-shadow:0 8px 20px rgba(0,0,0,.3);
+}
+
+.form-title{
+font-family:'Playfair Display',serif;
+font-size:34px;
+font-weight:700;
+margin-bottom:8px;
+color:#fff;
+}
+
+.form-line{
+width:70px;
+height:4px;
+background-color:var(--color-accent);
+margin-top:8px;
+margin-bottom:30px;
+border-radius:2px;
+}
+
+.label{
+font-size:13px;
+color:#9ca3af;
+margin-bottom:6px;
+display:block;
+font-weight:500;
+}
+
+.input{
+width:100%;
+padding:14px;
+border-radius:12px;
+border:1px solid var(--color-border);
+background-color:var(--color-card);
+color:#fff;
+font-size:14px;
+margin-bottom:20px;
+}
+
+.btn-save{
+width:100%;
+padding:14px;
+background-color:var(--color-accent);
+color:#000;
+border:none;
+border-radius:12px;
+font-size:14px;
+font-weight:600;
+cursor:pointer;
+}
+
+.btn-cancel{
+width:100%;
+padding:14px;
+border:1px solid var(--color-border);
+background-color:transparent;
+border-radius:12px;
+font-size:14px;
+font-weight:600;
+color:#fff;
+cursor:pointer;
+}
+
+footer{
+background-color:#000;
+border-top:1px solid var(--color-border);
+padding:60px 20px;
+}
+</style>
+</head>
+
+<body>
+
+<header class="navbar-custom">
+<div class="container d-flex justify-content-between align-items-center">
+<a href="/" class="navbar-brand">OUTFITO</a>
+
+<div class="d-flex align-items-center">
+<a href="#" class="nav-link">HOME</a>
+<a href="#" class="nav-link">PRODUCTS</a>
+<a href="#" class="nav-link">CATEGORIES</a>
+<input class="search-box ms-4" placeholder="Search premium fashion..." />
+</div>
+</div>
+</header>
+
+<div class="page">
+
+<div class="sidebar">
+<a href="#">Profile</a>
+<a href="#" class="active">Addresses</a>
+<a href="#">Orders</a>
+<a href="#">Wishlist</a>
+<a href="#">Wallet</a>
+</div>
+
+<div class="content">
+<div class="form-card">
+
+<h1 class="form-title">Edit Address</h1>
+<div class="form-line"></div>
+
+<p class="mb-4" style="color:#9ca3af;">
+Modify your details for continued worldwide premium delivery.
+</p>
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }}">
+{{ message }}
+</div>
+{% endfor %}
+{% endif %}
+
+<form method="POST" action="{% url 'edit-address' address.id %}">
+{% csrf_token %}
+
+<label class="label">Full Name</label>
+<input name="full_name" class="input" value="{{ address.full_name }}" required />
+
+<label class="label">Phone Number</label>
+<input name="phone" class="input" value="{{ address.phone_number }}" required />
+
+<label class="label">Street Address</label>
+<input name="line1" class="input" value="{{ address.address_line1 }}" required />
+
+<label class="label">Address Line 2 (Optional)</label>
+<input name="line2" class="input" value="{{ address.address_line2 }}" />
+
+<div class="row g-3 mb-3">
+
+<div class="col-md-4">
+<label class="label">City</label>
+<input name="city" class="input" value="{{ address.city }}" required />
+</div>
+
+<div class="col-md-4">
+<label class="label">State / Region</label>
+<input name="state" class="input" value="{{ address.state }}" required />
+</div>
+
+<div class="col-md-4">
+<label class="label">Postal Code</label>
+<input name="pincode" class="input" value="{{ address.pincode }}" required />
+</div>
+
+</div>
+
+<label class="label">Country</label>
+<input name="country" class="input" value="{{ address.country }}" required />
+
+<label class="label">Address Type</label>
+<select name="type" class="input" required style="background-color:var(--color-card);">
+<option value="home" {% if address.type == 'home' %}selected{% endif %}>Home</option>
+<option value="office" {% if address.type == 'office' %}selected{% endif %}>Office / Work</option>
+<option value="other" {% if address.type == 'other' %}selected{% endif %}>Other</option>
+</select>
+
+<div class="form-check my-4 d-flex align-items-center">
+<input class="form-check-input me-2" type="checkbox" name="is_default" id="defaultAddress" {% if address.is_default %}checked{% endif %} />
+<label class="form-check-label" for="defaultAddress" style="color:#9ca3af;">
+Set as default shipping address
+</label>
+</div>
+
+<div class="row g-3 mt-4">
+
+<div class="col-md-8">
+<button class="btn-save" type="submit">
+Update Address
+</button>
+</div>
+
+<div class="col-md-4">
+<button type="button" class="btn-cancel" onclick="history.back()">
+Cancel
+</button>
+</div>
+
+</div>
+
+</form>
+
+</div>
+</div>
+</div>
+
+<footer>
+<div class="container">
+<div class="footer-bottom text-center">
+© 2026 OUTFITO PREMIUM STORE. ALL RIGHTS RESERVED.
+</div>
+</div>
+</footer>
+
+</body>
+</html>

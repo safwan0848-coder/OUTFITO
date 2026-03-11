@@ -1,0 +1,368 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outfito | Dark Neon Login</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+body{
+font-family:'Plus Jakarta Sans',sans-serif;
+background:#0B101B;
+color:#fff;
+min-height:100vh;
+overflow:hidden;
+}
+
+.left-section{
+position:relative;
+height:100vh;
+overflow:hidden;
+}
+
+.left-section img{
+position:absolute;
+width:100%;
+height:100%;
+object-fit:cover;
+object-position: top center;
+}
+
+.left-overlay{
+position:absolute;
+inset:0;
+background:linear-gradient(
+to top,
+rgba(11,16,27,0.85) 20%,
+rgba(11,16,27,0.6) 50%,
+rgba(11,16,27,0.3) 80%
+);
+}
+
+.left-content{
+position:absolute;
+bottom:80px;
+left:70px;
+max-width:480px;
+z-index:2;
+}
+
+.brand-title{
+font-size:46px;
+font-weight:700;
+line-height:1.2;
+}
+
+.brand-title span{
+color:#00e5ff;
+}
+
+.brand-desc{
+margin-top:20px;
+color:#cbd5e1;
+font-size:16px;
+line-height:1.6;
+}
+
+.brand-footer{
+margin-top:35px;
+font-size:13px;
+color:#94a3b8;
+}
+
+.right-section{
+display:flex;
+align-items:center;
+justify-content:center;
+background:radial-gradient(circle at center,#111827 0%,#0B101B 100%);
+position:relative;
+}
+
+.glow-circle{
+position:absolute;
+width:600px;
+height:600px;
+background:#2563eb20;
+border-radius:50%;
+filter:blur(120px);
+}
+
+.login-card{
+background: rgba(30,41,59,0.4);
+backdrop-filter: blur(18px);
+border-radius: 40px;
+padding: 30px;
+border: 1px solid rgba(255,255,255,0.08);
+width: 100%;
+max-width: 430px;
+}
+
+.neon-title{
+color:#00e5ff;
+text-shadow:0 0 15px rgba(0,229,255,.6);
+font-weight:800;
+margin-bottom:30px;
+font-size:28px;
+}
+
+.form-control{
+background:rgba(255,255,255,.05);
+border:1px solid rgba(255,255,255,.1);
+color:#fff;
+padding:10px 14px;
+border-radius:14px;
+font-size:13px;
+}
+
+.form-control:focus{
+border-color:#00e5ff;
+box-shadow:0 0 12px rgba(0,229,255,.4);
+}
+
+.password-wrapper{
+position:relative;
+}
+
+.eye-btn{
+position:absolute;
+right:12px;
+top:50%;
+transform:translateY(-50%);
+cursor:pointer;
+font-size:16px;
+color:#94a3b8;
+}
+
+.eye-btn:hover{
+color:#00e5ff;
+}
+
+.forgot-link{
+text-align:right;
+font-size:12px;
+margin-top:6px;
+}
+
+.forgot-link a{
+color:#94a3b8;
+text-decoration:none;
+}
+
+.forgot-link a:hover{
+color:#00e5ff;
+}
+
+.btn-primary{
+background:#2563eb;
+border:none;
+border-radius:25px;
+padding:10px;
+font-weight:600;
+font-size:13px;
+}
+
+.btn-primary:hover{
+background:#1d4ed8;
+}
+
+.divider{
+position:relative;
+text-align:center;
+margin:30px 0;
+}
+
+.divider::before{
+content:"";
+position:absolute;
+width:100%;
+height:1px;
+background:rgba(255,255,255,.1);
+top:50%;
+left:0;
+}
+
+.divider span{
+background:#111827;
+padding:0 15px;
+font-size:10px;
+letter-spacing:3px;
+color:#64748b;
+position:relative;
+}
+
+.google-btn{
+background:rgba(255,255,255,.05);
+border:1px solid rgba(255,255,255,.1);
+border-radius:50px;
+padding:10px;
+font-size:13px;
+color:#fff;
+}
+
+.google-btn:hover{
+background: rgba(59,130,246,0.15);
+border-color: #3b82f6;
+}
+
+.footer-text{
+font-size:10px;
+color:#64748b;
+margin-top:25px;
+}
+
+.error-text{
+color:#ff6b6b;
+font-size:12px;
+}
+
+.success-text{
+color:#22c55e;
+font-size:13px;
+}
+
+.warning-text{
+color:#facc15;
+font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container-fluid">
+<div class="row vh-100">
+
+<div class="col-lg-6 d-none d-lg-block left-section p-0">
+<img src="{% static 'images/Login.jpeg' %}" alt="Outfito Hero">
+<div class="left-overlay"></div>
+
+<div class="left-content">
+<h1 class="brand-title">
+Finance Meets <span>Fashion.</span>
+</h1>
+
+<p class="brand-desc">
+A premium financial ecosystem crafted for modern professionals.
+</p>
+
+<div class="brand-footer">
+© 2024 Outfito Financial Technologies
+</div>
+</div>
+
+</div>
+
+<div class="col-lg-6 right-section">
+
+<div class="glow-circle"></div>
+
+<div class="login-card text-center">
+
+<h2 class="neon-title">Own Your Style</h2>
+
+<form method="POST">
+{% csrf_token %}
+
+{% if messages %}
+{% for message in messages %}
+{% if forloop.last %}
+<div class="mb-2
+{% if message.tags == 'error' %}
+error-text
+{% elif message.tags == 'success' %}
+success-text
+{% else %}
+warning-text
+{% endif %}
+">
+{{ message }}
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+<div class="mb-3 text-start">
+<label class="form-label text-secondary small">Email Address</label>
+<input type="email" id="emailInput" name="email" class="form-control" required>
+</div>
+
+<div class="mb-3 text-start">
+<label class="form-label text-secondary small">Password</label>
+
+<div class="password-wrapper">
+<input type="password" id="password" name="password" class="form-control" required>
+<span class="eye-btn" onclick="togglePassword()">👁</span>
+</div>
+
+<div class="forgot-link">
+<a href="#" id="forgotBtn" style="display:none;" onclick="goForgot()">
+Forgot Password?
+</a>
+</div>
+
+</div>
+
+<button type="submit" class="btn btn-primary w-100 mb-3">
+Sign In →
+</button>
+
+</form>
+
+<div class="divider">
+<span>OR CONTINUE WITH</span>
+</div>
+
+<a href="/accounts/google/login/"
+class="google-btn w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none">
+
+<img src="https://www.svgrepo.com/show/475656/google-color.svg" width="18">
+
+<span class="fw-medium text-white">Continue with Google</span>
+</a>
+
+<p class="mt-3 text-secondary small">
+Don't have an account?
+<a href="{% url 'signup' %}" style="color:#00e5ff;">Sign up</a>
+</p>
+
+<div class="footer-text">
+Secure Login • Bank-Level Encryption
+</div>
+
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+function togglePassword(){
+const password=document.getElementById("password");
+password.type=password.type==="password"?"text":"password";
+}
+
+const emailInput=document.getElementById("emailInput");
+const forgotBtn=document.getElementById("forgotBtn");
+
+emailInput.addEventListener("input",function(){
+if(this.value.trim()!==""){
+forgotBtn.style.display="inline";
+}else{
+forgotBtn.style.display="none";
+}
+});
+
+function goForgot(){
+const email=emailInput.value.trim();
+if(email!==""){
+window.location.href="/forgot-password/?email="+encodeURIComponent(email);
+}
+}
+</script>
+
+</body>
+</html>

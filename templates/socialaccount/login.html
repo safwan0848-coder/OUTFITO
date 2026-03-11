@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Login | Outfito</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body{
+            background:#0B101B;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            font-family:'Plus Jakarta Sans',sans-serif;
+            color:white;
+        }
+        .card-box{
+            background: rgba(30,41,59,0.4);
+            backdrop-filter: blur(18px);
+            border-radius: 30px;
+            padding: 40px;
+            width:100%;
+            max-width:420px;
+            text-align:center;
+            border:1px solid rgba(255,255,255,0.1);
+        }
+        .btn-google{
+            background:#2563eb;
+            border:none;
+            padding:12px;
+            border-radius:25px;
+            color:white;
+            width:100%;
+            font-weight:600;
+        }
+        .btn-google:hover{
+            background:#1d4ed8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card-box">
+    <h2 class="mb-3">Sign In Via Google</h2>
+    <p class="text-secondary mb-4">
+        You are about to sign in using your Google account.
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn-google">
+            Continue with Google →
+        </button>
+    </form>
+</div>
+
+</body>
+</html>

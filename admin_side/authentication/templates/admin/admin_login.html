@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Outfito Admin Portal</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Inter',sans-serif;
+background:#F8F7F4;
+transition:0.4s;
+}
+
+body.dark{
+background:#121212;
+color:white;
+}
+
+.fashion-bg{
+min-height:100vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+padding:20px;
+
+background-image:
+linear-gradient(rgba(248,247,244,0.9),rgba(248,247,244,0.9)),
+url("https://images.unsplash.com/photo-1523381294911-8d3cead13475");
+
+background-size:cover;
+background-position:center;
+}
+
+body.dark .fashion-bg{
+background-image:
+linear-gradient(rgba(18,18,18,0.9),rgba(18,18,18,0.9)),
+url("https://images.unsplash.com/photo-1523381294911-8d3cead13475");
+}
+
+.brand{
+font-family:'Playfair Display',serif;
+font-size:42px;
+font-weight:700;
+}
+
+.login-card{
+width:100%;
+max-width:420px;
+padding:45px;
+
+border-radius:25px;
+
+background:rgba(255,255,255,0.7);
+backdrop-filter:blur(15px);
+
+box-shadow:0 15px 35px rgba(0,0,0,0.2);
+
+transition:0.3s;
+}
+
+body.dark .login-card{
+background:rgba(30,30,30,0.9);
+}
+
+.primary{
+background:#4D6A61;
+color:white;
+}
+
+.primary:hover{
+background:#3e564e;
+}
+
+.accent{
+color:#C36F4E;
+}
+
+.form-control{
+height:50px;
+border-radius:12px;
+padding-left:42px;
+border:1px solid #ddd;
+}
+
+body.dark .form-control{
+background:#222;
+border-color:#444;
+color:white;
+}
+
+.input-icon{
+position:absolute;
+top:50%;
+left:12px;
+transform:translateY(-50%);
+color:#777;
+}
+
+.password-toggle{
+position:absolute;
+right:10px;
+top:50%;
+transform:translateY(-50%);
+cursor:pointer;
+color:#777;
+}
+
+.login-btn{
+height:50px;
+font-weight:600;
+border-radius:12px;
+}
+
+.toggle-btn{
+position:fixed;
+top:20px;
+right:20px;
+
+border:none;
+border-radius:50%;
+
+padding:10px;
+
+background:rgba(255,255,255,0.6);
+
+cursor:pointer;
+}
+
+body.dark .toggle-btn{
+background:#222;
+color:white;
+}
+
+.error-text{
+color:#ff4d4d;
+font-size:13px;
+margin-bottom:10px;
+}
+
+.success-text{
+color:#22c55e;
+font-size:13px;
+margin-bottom:10px;
+}
+
+.warning-text{
+color:#facc15;
+font-size:13px;
+margin-bottom:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<button class="toggle-btn" onclick="toggleMode()">
+<span class="material-icons">brightness_6</span>
+</button>
+
+<div class="fashion-bg">
+
+<div class="text-center mb-4">
+
+<div class="mb-3">
+<span class="material-icons p-3 rounded-circle text-white" style="background:#4D6A61;font-size:32px;">
+checkroom
+</span>
+</div>
+
+<div class="brand">Outfito</div>
+
+<div class="accent text-uppercase small">Admin Portal</div>
+
+<p class="text-muted small">
+Secure access for authorized personnel
+</p>
+
+</div>
+
+
+<div class="login-card">
+
+<h4 class="mb-4 fw-semibold">Log In</h4>
+
+{% if messages %}
+{% for message in messages %}
+<div class="
+{% if message.tags == 'error' %}
+error-text
+{% elif message.tags == 'success' %}
+success-text
+{% else %}
+warning-text
+{% endif %}
+">
+{{ message }}
+</div>
+{% endfor %}
+{% endif %}
+
+<form method="POST" action="{% url 'admin-login' %}">
+{% csrf_token %}
+
+<div class="mb-3 position-relative">
+
+<span class="material-icons input-icon">mail</span>
+
+<input
+type="email"
+name="email"
+class="form-control"
+placeholder="admin@outfito.com"
+required
+>
+
+</div>
+
+
+<div class="mb-3 position-relative">
+
+<span class="material-icons input-icon">lock</span>
+
+<input
+type="password"
+name="password"
+id="password"
+class="form-control"
+placeholder="Password"
+required
+>
+
+<span class="material-icons password-toggle" onclick="togglePassword()">
+visibility
+</span>
+
+</div>
+
+
+<button type="submit" class="btn primary w-100 login-btn">
+
+<span class="material-icons align-middle me-1">login</span>
+
+Sign In to Dashboard
+
+</button>
+
+</form>
+
+</div>
+
+
+<div class="mt-4 small text-muted text-center">
+© 2024 OUTFITO CLOTHING CO. ALL RIGHTS RESERVED.
+</div>
+
+</div>
+
+
+<script>
+
+function toggleMode(){
+document.body.classList.toggle("dark")
+}
+
+function togglePassword(){
+let pass=document.getElementById("password")
+pass.type = pass.type === "password" ? "text" : "password"
+}
+
+</script>
+
+</body>
+</html>
