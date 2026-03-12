@@ -260,7 +260,7 @@ def profile_reset_verify(request):
             return redirect('profile-reset-verify')
 
         otp.delete()
-
+        request.session['reset_email'] = user.email
         request.session['otp_verified'] = True
         request.session.modified = True
 
