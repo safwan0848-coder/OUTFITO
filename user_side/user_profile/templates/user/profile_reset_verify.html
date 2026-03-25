@@ -33,16 +33,32 @@ overflow:hidden;
 .vh-100{height:100vh;}
 
 .left-section{
-background-image:url("{% static 'images/Signup.jpeg' %}");
+position:relative;
+background-image:url("{% static 'images/Model9.jpeg' %}");
 background-size:cover;
 background-position:center;
-position:relative;
+height:100vh;
+overflow:hidden;
 }
 
 .left-overlay{
 position:absolute;
 inset:0;
-background:linear-gradient(to top,var(--background-dark),rgba(16,22,34,0.6),transparent);
+background:
+linear-gradient(90deg,
+rgba(16,22,34,0.08) 0%,
+rgba(16,22,34,0.25) 30%,
+rgba(16,22,34,0.55) 60%,
+rgba(16,22,34,0.85) 80%,
+rgba(16,22,34,0.95) 100%),
+radial-gradient(circle at 70% 45%, rgba(13,89,242,0.15), transparent 60%);
+}
+
+.left-section::after{
+content:"";
+position:absolute;
+inset:0;
+background:radial-gradient(circle at 20% 30%, rgba(255,255,255,0.05), transparent 60%);
 }
 
 .otp-input{
@@ -105,6 +121,62 @@ color:#facc15;
 font-size:13px;
 text-align:center;
 margin-bottom:15px;
+}
+
+/* PREMIUM OTP FORM */
+
+.premium-otp-form{
+margin-top:20px;
+}
+
+.otp-group{
+display:flex;
+justify-content:space-between;
+gap:12px;
+margin-bottom:28px;
+}
+
+.otp-input{
+width:58px;
+height:70px;
+font-size:26px;
+font-weight:800;
+text-align:center;
+border-radius:14px;
+border:2px solid var(--border-slate);
+background:var(--navy-surface);
+color:white;
+transition:all .25s ease;
+}
+
+.otp-input:hover{
+border-color:#3b82f6;
+}
+
+.otp-input:focus{
+border-color:var(--primary);
+box-shadow:
+0 0 10px rgba(13,89,242,.5),
+0 0 25px rgba(13,89,242,.25);
+outline:none;
+}
+
+.premium-btn{
+background:linear-gradient(90deg,#4c7cf3,#2f66e4);
+border:none;
+padding:16px;
+font-weight:700;
+color:white;
+border-radius:40px;
+width:100%;
+font-size:1.05rem;
+transition:.25s;
+}
+
+.premium-btn:hover{
+background:linear-gradient(90deg,#3b6eea,#2557d8);
+box-shadow:0 10px 25px rgba(59,130,246,.35);
+transform:translateY(-1px);
 }
 
 </style>
@@ -179,18 +251,18 @@ warning-text
 {% endfor %}
 {% endif %}
 
-<form method="POST" id="otp-form">
+<form method="POST" id="otp-form" class="premium-otp-form">
 
 {% csrf_token %}
 
-<div class="d-flex justify-content-between mb-4">
+<div class="otp-group">
 
-<input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" onkeyup="moveNext(this,event)">
-<input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" onkeyup="moveNext(this,event)">
-<input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" onkeyup="moveNext(this,event)">
-<input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" onkeyup="moveNext(this,event)">
-<input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" onkeyup="moveNext(this,event)">
-<input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" onkeyup="moveNext(this,event)">
+<input type="text" class="otp-input" maxlength="1" inputmode="numeric" onkeyup="moveNext(this,event)">
+<input type="text" class="otp-input" maxlength="1" inputmode="numeric" onkeyup="moveNext(this,event)">
+<input type="text" class="otp-input" maxlength="1" inputmode="numeric" onkeyup="moveNext(this,event)">
+<input type="text" class="otp-input" maxlength="1" inputmode="numeric" onkeyup="moveNext(this,event)">
+<input type="text" class="otp-input" maxlength="1" inputmode="numeric" onkeyup="moveNext(this,event)">
+<input type="text" class="otp-input" maxlength="1" inputmode="numeric" onkeyup="moveNext(this,event)">
 
 </div>
 
@@ -205,7 +277,7 @@ Code expires in:
 
 </div>
 
-<button type="submit" class="verify-btn shadow-lg">
+<button type="submit" class="premium-btn">
 Verify Code
 </button>
 
@@ -231,22 +303,53 @@ Resend
 
 <script>
 
+setTimeout(() => {
+    document.querySelectorAll('.alert, .error-text, .success-text, .warning-text')
+    .forEach(el => {
+        el.style.transition = "opacity 0.4s";
+        el.style.opacity = "0";
+        setTimeout(() => el.remove(), 400);
+    });
+}, 3000);
+
 function moveNext(element,event){
 
 const inputs=document.querySelectorAll(".otp-input");
 const idx=Array.from(inputs).indexOf(element);
 
+element.value=element.value.replace(/[^0-9]/g,'');
+
 if(element.value.length===1 && idx<inputs.length-1){
 inputs[idx+1].focus();
 }
 
-if(event.key==="Backspace" && element.value.length===0 && idx>0){
+if(event.key==="Backspace" && element.value==="" && idx>0){
 inputs[idx-1].focus();
 }
 
 updateOTP();
-
 }
+
+/* paste full OTP */
+
+document.querySelectorAll(".otp-input").forEach((input,i)=>{
+input.addEventListener("paste",function(e){
+
+let paste=e.clipboardData.getData("text").trim();
+
+if(paste.length===6){
+
+const inputs=document.querySelectorAll(".otp-input");
+
+paste.split("").forEach((num,index)=>{
+inputs[index].value=num;
+});
+
+updateOTP();
+}
+
+});
+});
 
 function updateOTP(){
 

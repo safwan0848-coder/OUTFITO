@@ -15,11 +15,15 @@ import re
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import login
 from django.views.decorators.cache import never_cache
-
+from django.contrib.messages import get_messages
 
 @never_cache
 @login_required(login_url='login')
 def profile(request):
+
+    storage = get_messages(request)
+    for _ in storage:
+        pass
 
     profile, created = Profile.objects.get_or_create(user=request.user)
 
@@ -37,74 +41,75 @@ def edit_profile(request):
 
     profile, _ = Profile.objects.get_or_create(user=request.user)
 
-
     if request.method == "POST":
 
         username = request.POST.get("username")
         email = request.POST.get("email")
         phone = request.POST.get("phone")
 
+        context = {
+            "user": request.user,
+            "profile": profile
+        }
+
+        # 🔹 VALIDATIONS
         if not username or not email:
             messages.error(request, "Username and Email required")
-            return redirect("edit-profile")
+            return render(request, "user/edit_profile.html", context)
 
-        elif not re.match(r'^[A-Za-z]+$', username):
-            messages.error(request, "Username can contain only letters")
-            return redirect("edit-profile")
-        
-        elif User.objects.filter(username=username).exclude(id=request.user.id).exists():
-            messages.error(request, "user name already exists")
-            return redirect("edit-profile")
+        if not re.match(r'^[A-Za-z0-9 ]+$', username):
+            messages.error(request, "Username can contain only letters, numbers and spaces")
+            return render(request, "user/edit_profile.html", context)
 
-        elif phone and not re.match(r'^[0-9]{10}$', phone):
+        if User.objects.filter(username=username).exclude(id=request.user.id).exists():
+            messages.error(request, "Username already exists")
+            return render(request, "user/edit_profile.html", context)
+
+        if phone and not re.match(r'^[0-9]{10}$', phone):
             messages.error(request, "Phone must be 10 digits")
-            return redirect("edit-profile")
-      
+            return render(request, "user/edit_profile.html", context)
 
-        elif profile.google_image and email != request.user.email:
+        if profile.google_image and email != request.user.email:
             messages.error(request, "Google users cannot change email address.")
             return redirect("profile")
 
-        else:
+        # 🔹 EMAIL CHANGE FLOW
+        if email != request.user.email:
 
-            if email != request.user.email:
+            request.session["new_email"] = email
 
-                request.session["new_email"] = email
+            OTP.objects.filter(user=request.user).delete()
+            otp = OTP.objects.create(user=request.user)
 
-                OTP.objects.filter(user=request.user).delete()
-                otp = OTP.objects.create(user=request.user)
+            send_mail(
+                subject="Verify Email Change",
+                message=f"Your OTP is {otp.code}",
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[email],
+                fail_silently=False
+            )
 
-                send_mail(
-                    subject="Verify Email Change",
-                    message=f"Your OTP is {otp.code}",
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[email],
-                    fail_silently=False
-                )
+            return redirect("verify-email-change")
 
-                return redirect("verify-email-change")
+        # 🔹 UPDATE USER
+        request.user.username = username
+        request.user.save()
 
-            request.user.username = username
-            request.user.save()
+        profile.phone = phone
 
-            profile.phone = phone
+        if request.FILES.get("profile_image"):
+            profile.profile_image = request.FILES.get("profile_image")
 
-            if request.FILES.get("profile_image"):
-                profile.profile_image = request.FILES.get("profile_image")
+        profile.save()
 
-            profile.save()
+        messages.success(request, "Profile updated successfully")
+        return redirect("profile")
 
-            messages.success(request, "Profile updated successfully")
-
-            return redirect("profile")
-
-    context = {
+    # 🔹 GET REQUEST
+    return render(request, "user/edit_profile.html", {
         "user": request.user,
-        "profile": profile,
-    }
-
-    return render(request, "user/edit_profile.html", context)
-
+        "profile": profile
+    })
 
 @never_cache
 def logout_view(request):
@@ -145,31 +150,33 @@ def change_password(request):
         new_password1 = request.POST.get("new_password1")
         new_password2 = request.POST.get("new_password2")
 
+        context = {}
+
         user = request.user
 
         if not old_password or not new_password1 or not new_password2:
             messages.error(request, "All fields are required")
-            return redirect("change-password")
+            return render(request, "user/change_password.html", context)
 
         if not check_password(old_password, user.password):
             messages.error(request, "Current password is incorrect")
-            return redirect("change-password")
+            return render(request, "user/change_password.html", context)
 
         if len(new_password1) < 6:
             messages.error(request, "Password must be at least 6 characters")
-            return redirect("change-password")
+            return render(request, "user/change_password.html", context)
 
         if new_password1 != new_password2:
             messages.error(request, "Passwords do not match")
-            return redirect("change-password")
+            return render(request, "user/change_password.html", context)
 
         if check_password(new_password1, user.password):
-            messages.error(request, "New password cannot be the same as old password")
-            return redirect("change-password")
+            messages.error(request, "New password cannot be same as old password")
+            return render(request, "user/change_password.html", context)
 
         if not re.match(r'^[A-Za-z0-9@#$%^&+=!]+$', new_password1):
             messages.error(request, "Password contains invalid characters")
-            return redirect("change-password")
+            return render(request, "user/change_password.html", context)
 
         user.set_password(new_password1)
         user.save()
@@ -231,7 +238,6 @@ def start_password_reset(request):
 def profile_reset_verify(request):
 
     email = request.user.email
-
     user = get_object_or_404(User, email=email)
 
     otp = OTP.objects.filter(user=user).last()
@@ -242,34 +248,36 @@ def profile_reset_verify(request):
         if remaining_seconds < 0:
             remaining_seconds = 0
 
+    context = {
+        "email": email,
+        "remaining_seconds": remaining_seconds
+    }
+
     if request.method == "POST":
 
         code = request.POST.get("otp")
 
         if not otp:
             messages.error(request, "OTP not found. Please request a new one.")
-            return redirect('profile-reset-verify')
+            return render(request, 'user/profile_reset_verify.html', context)
 
         if otp.is_expired():
             otp.delete()
             messages.error(request, "OTP has expired. Please request a new one.")
-            return redirect('profile-reset-verify')
+            return render(request, 'user/profile_reset_verify.html', context)
 
         if str(otp.code) != str(code):
             messages.error(request, "Invalid OTP. Please try again.")
-            return redirect('profile-reset-verify')
+            return render(request, 'user/profile_reset_verify.html', context)
 
         otp.delete()
+
         request.session['reset_email'] = user.email
         request.session['otp_verified'] = True
-        request.session.modified = True
 
         return redirect('profile-set-new-password')
 
-    return render(request, 'user/profile_reset_verify.html', {
-        "email": email,
-        "remaining_seconds": remaining_seconds
-    })
+    return render(request, 'user/profile_reset_verify.html', context)
 
 
 @never_cache
@@ -283,6 +291,8 @@ def profile_set_new_password(request):
         messages.error(request, "Unauthorized access. Please verify OTP first.")
         return redirect('change-password')
 
+    context = {}
+
     if request.method == "POST":
 
         password1 = request.POST.get("password1")
@@ -290,19 +300,19 @@ def profile_set_new_password(request):
 
         if not password1 or not password2:
             messages.error(request, "Password fields cannot be empty.")
-            return redirect('profile-set-new-password')
+            return render(request, "user/profile_set_new_password.html", context)
 
         if len(password1) < 6:
             messages.error(request, "Password must be at least 6 characters.")
-            return redirect('profile-set-new-password')
+            return render(request, "user/profile_set_new_password.html", context)
 
         if password1 != password2:
             messages.error(request, "Passwords do not match.")
-            return redirect('profile-set-new-password')
+            return render(request, "user/profile_set_new_password.html", context)
 
         if not re.match(r'^[A-Za-z0-9@#$%^&+=!]+$', password1):
             messages.error(request, "Password contains invalid characters.")
-            return redirect('profile-set-new-password')
+            return render(request, "user/profile_set_new_password.html", context)
 
         user = User.objects.filter(email=email).first()
 
@@ -312,7 +322,7 @@ def profile_set_new_password(request):
 
         if check_password(password1, user.password):
             messages.error(request, "New password cannot be the same as the old password.")
-            return redirect('profile-set-new-password')
+            return render(request, "user/profile_set_new_password.html", context)
 
         user.set_password(password1)
         user.save()
@@ -326,7 +336,7 @@ def profile_set_new_password(request):
 
         return redirect('profile')
 
-    return render(request, "user/profile_set_new_password.html")
+    return render(request, "user/profile_set_new_password.html", context)
 
 
 @never_cache
@@ -366,8 +376,11 @@ def resend_profile_otp(request):
 
 @never_cache
 @login_required(login_url='login')
-@login_required
 def verify_email_change(request):
+
+    storage = get_messages(request)
+    for _ in storage:
+        pass
 
     new_email = request.session.get("new_email")
 
@@ -381,8 +394,12 @@ def verify_email_change(request):
         return redirect("edit-profile")
 
     user = request.user
-
     otp, remaining_seconds = get_otp_timer(user)
+
+    context = {
+        "email": new_email,
+        "remaining_seconds": remaining_seconds
+    }
 
     if request.method == "POST":
 
@@ -390,16 +407,16 @@ def verify_email_change(request):
 
         if not otp:
             messages.error(request, "OTP not found")
-            return redirect("verify-email-change")
+            return render(request, "user/verify_email_change.html", context)
 
         if otp.is_expired():
             otp.delete()
             messages.error(request, "OTP expired. Please resend OTP.")
-            return redirect("verify-email-change")
+            return render(request, "user/verify_email_change.html", context)
 
         if str(otp.code) != str(code):
             messages.error(request, "Invalid OTP")
-            return redirect("verify-email-change")
+            return render(request, "user/verify_email_change.html", context)
 
         user.email = new_email
         user.save()
@@ -411,7 +428,4 @@ def verify_email_change(request):
 
         return redirect("profile")
 
-    return render(request, "user/verify_email_change.html", {
-        "email": new_email,
-        "remaining_seconds": remaining_seconds
-    })
+    return render(request, "user/verify_email_change.html", context)

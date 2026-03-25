@@ -14,6 +14,10 @@ from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.conf import settings
 from django.utils import timezone
+from admin_side.categories_management.models import Category
+from admin_side.products_management.models import Product
+from admin_side.variants_management.models import Variant
+from django.db.models import Prefetch
 
 
 @never_cache
@@ -37,8 +41,8 @@ def signup_view(request):
             messages.error(request, "Username cannot contain only numbers")
             return redirect('signup')
 
-        if not re.match(r'^[A-Za-z ]+$', uname):
-            messages.error(request,"Username can contain only letters ")
+        if not re.match(r'^[A-Za-z0-9_ ]+$', uname):
+            messages.error(request, "Username can contain letters, numbers and underscore")
             return redirect('signup')
 
         if not email:
@@ -55,22 +59,46 @@ def signup_view(request):
             messages.error(request, "Password fields cannot be empty")
             return redirect('signup')
 
-        if len(pass1) < 6:
-            messages.error(request, "Password must be at least 6 characters")
+        if pass1 != pass2:
+            messages.error(request, "Passwords do not match")
             return redirect('signup')
 
-        if pass1 != pass2:
-            messages.error(request, "Password and Confirm Password are not the same")
+        # Strong password validation
+        if len(pass1) < 8:
+            messages.error(request, "Password must be at least 8 characters")
             return redirect('signup')
+
+        if not re.search(r'[A-Z]', pass1):
+            messages.error(request, "Password must contain at least one uppercase letter")
+            return redirect('signup')
+
+        if not re.search(r'[a-z]', pass1):
+            messages.error(request, "Password must contain at least one lowercase letter")
+            return redirect('signup')
+
+        if not re.search(r'[0-9]', pass1):
+            messages.error(request, "Password must contain at least one number")
+            return redirect('signup')
+
+        if not re.search(r'[!@#$%^&*(),.?\":{}|<>]', pass1):
+            messages.error(request, "Password must contain at least one special character")
+            return redirect('signup')
+
+        
+        existing_user = User.objects.filter(email=email).first()
+
+        if existing_user:
+            if existing_user.is_verified:
+                messages.error(request, "Email already registered")
+                return redirect('signup')
+            else:
+                existing_user.delete()
+
 
         if User.objects.filter(username=uname).exists():
             messages.error(request, "Username already exists")
             return redirect('signup')
-
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email already registered")
-            return redirect('signup')
-
+        
         user = User.objects.create_user(
             username=uname,
             email=email,
@@ -247,18 +275,19 @@ def login_view(request):
 
     if request.user.is_authenticated:
         return redirect('landing')
-    
+
     if request.method == 'POST':
+
         email = request.POST.get('email')
         password = request.POST.get('password')
 
-        user = authenticate(request, email=email, password=password)
+        user = User.objects.filter(email=email).first()
 
-        if user is None:
+        if not user:
             messages.error(request, "Invalid email or password")
             return redirect('login')
 
-        if user.is_blocked:
+        if not user.is_active:
             messages.error(request, "Your account is blocked. Contact support.")
             return redirect('login')
 
@@ -266,8 +295,10 @@ def login_view(request):
             messages.warning(request, "Please verify your email first.")
             return redirect('login')
 
-        if not user.is_active:
-            messages.error(request, "Your account is not active.")
+        user = authenticate(request, email=email, password=password)
+
+        if user is None:
+            messages.error(request, "Invalid email or password")
             return redirect('login')
 
         login(request, user)
@@ -380,12 +411,28 @@ def set_new_password(request):
             messages.error(request, "Password fields cannot be empty")
             return redirect('set_new_password')
 
-        if len(pass1) < 6:
-            messages.error(request, "Password must be at least 6 characters")
-            return redirect('set_new_password')
-
         if pass1 != pass2:
             messages.error(request, "Passwords do not match")
+            return redirect('set_new_password')
+
+        if len(pass1) < 8:
+            messages.error(request, "Password must be at least 8 characters")
+            return redirect('set_new_password')
+
+        if not re.search(r'[A-Z]', pass1):
+            messages.error(request, "Must contain at least 1 uppercase letter")
+            return redirect('set_new_password')
+
+        if not re.search(r'[a-z]', pass1):
+            messages.error(request, "Must contain at least 1 lowercase letter")
+            return redirect('set_new_password')
+
+        if not re.search(r'[0-9]', pass1):
+            messages.error(request, "Must contain at least 1 number")
+            return redirect('set_new_password')
+
+        if not re.search(r'[!@#$%^&*(),.?\":{}|<>]', pass1):
+            messages.error(request, "Must contain at least 1 special character")
             return redirect('set_new_password')
 
         user = User.objects.filter(email=email).first()
@@ -411,7 +458,23 @@ def set_new_password(request):
 
 @never_cache
 def landing_view(request):
-    return render (request,'user/landing.html')
+
+    categories = Category.objects.filter(is_deleted=False) \
+                                 .order_by('-created_at')[:3]
+
+    variant_qs = Variant.objects.filter(is_active=True)
+
+    products = Product.objects.filter(is_deleted=False, is_listed=True) \
+        .prefetch_related(
+            Prefetch('variants', queryset=variant_qs, to_attr='active_variants')
+        ).order_by('-created_at')[:4]
+
+    context = {
+        'categories': categories,
+        'products': products,
+    }
+
+    return render(request, 'user/landing.html', context)
 
 @never_cache    
 def logout_view(request):

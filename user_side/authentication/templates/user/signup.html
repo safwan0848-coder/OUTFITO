@@ -152,6 +152,104 @@ font-size:13px;
 color:#facc15;
 font-size:13px;
 }
+
+.premium-input-group{
+position:relative;
+margin-bottom:18px;
+}
+
+.premium-input-group input{
+width:100%;
+background:rgba(15,23,42,0.6);
+border:1px solid #334155;
+color:#fff;
+border-radius:16px;
+padding:14px 14px;
+font-size:14px;
+outline:none;
+transition:all .3s;
+}
+
+.premium-input-group input:focus{
+border-color:#00d2ff;
+box-shadow:0 0 15px rgba(0,210,255,0.35);
+}
+
+.premium-input-group label{
+position:absolute;
+left:14px;
+top:12px;
+font-size:13px;
+color:#9ca3af;
+pointer-events:none;
+transition:all .2s ease;
+background:transparent;
+}
+
+.premium-input-group input:focus + label,
+.premium-input-group input:not(:placeholder-shown) + label{
+top:-7px;
+font-size:11px;
+color:#00d2ff;
+background:#0a0f1c;
+padding:0 6px;
+border-radius:6px;
+}
+
+.premium-btn{
+background:linear-gradient(90deg,#3b82f6,#2563eb);
+border:none;
+border-radius:30px;
+padding:12px;
+font-weight:700;
+letter-spacing:.5px;
+transition:all .25s ease;
+}
+
+.premium-btn:hover{
+background:linear-gradient(90deg,#2563eb,#00d2ff);
+transform:translateY(-1px);
+}
+
+.form-message{
+font-size:13px;
+margin-bottom:12px;
+text-align:center;
+}
+
+.password-wrapper{
+position:relative;
+}
+
+.eye-btn{
+position:absolute;
+right:12px;
+top:50%;
+transform:translateY(-50%);
+cursor:pointer;
+font-size:16px;
+color:#9ca3af;
+transition:.2s;
+}
+
+.eye-btn:hover{
+color:#00d2ff;
+}
+
+.forgot-link{
+text-align:right;
+font-size:12px;
+margin-top:6px;
+}
+
+.forgot-link a{
+color:#9ca3af;
+text-decoration:none;
+}
+
+.forgot-link a:hover{
+color:#00d2ff;
+}
 </style>
 </head>
 
@@ -186,67 +284,66 @@ The modern fintech platform designed for the sophisticated professional.
 {% csrf_token %}
 
 {% if messages %}
-{% for message in messages %}
-{% if forloop.last %}
-<div class="mb-2
-{% if message.tags == 'error' %}
-error-text
-{% elif message.tags == 'success' %}
-success-text
-{% elif message.tags == 'warning' %}
-warning-text
-{% endif %}
-">
-{{ message }}
-</div>
-{% endif %}
-{% endfor %}
+    {% for message in messages %}
+        <div class="form-message
+        {% if message.tags == 'error' %}error-text
+        {% elif message.tags == 'success' %}success-text
+        {% elif message.tags == 'warning' %}warning-text
+        {% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
 {% endif %}
 
-<div class="mb-2">
-<label class="small-text">Full Name</label>
+<div class="premium-input-group">
 <input type="text"
 name="username"
-class="form-control"
-placeholder="John Doe"
+placeholder=" "
 required
 pattern="^[A-Za-z0-9]+$"
 title="Username can contain only letters and numbers">
+<label>User Name</label>
 </div>
 
-<div class="mb-2">
-<label class="small-text">Email Address</label>
+<div class="premium-input-group">
 <input type="email"
 name="email"
-class="form-control"
-placeholder="name@company.com"
+placeholder=" "
 required>
+<label>Email Address</label>
 </div>
 
-<div class="mb-2">
-<label class="small-text">Password</label>
+<div class="premium-input-group password-wrapper">
+
 <input type="password"
 name="password1"
 id="password"
-class="form-control"
-placeholder="••••••••"
+placeholder=" "
 required
-minlength="6"
-title="Password must be at least 6 characters">
+minlength="6">
+
+<label>Password</label>
+
+<span class="eye-btn" onclick="togglePassword('password')">👁</span>
+
 </div>
 
-<div class="mb-3">
-<label class="small-text">Confirm Password</label>
+<div class="premium-input-group password-wrapper">
+
 <input type="password"
 name="password2"
 id="confirmPassword"
-class="form-control"
-placeholder="••••••••"
+placeholder=" "
 required
 minlength="6">
+
+<label>Confirm Password</label>
+
+<span class="eye-btn" onclick="togglePassword('confirmPassword')">👁</span>
+
 </div>
 
-<button type="submit" class="btn btn-primary w-100 mb-2">
+<button type="submit" class="premium-btn w-100">
 Create Account →
 </button>
 
@@ -281,15 +378,36 @@ Already have an account?
 </div>
 
 <script>
+
+setTimeout(() => {
+    document.querySelectorAll('.alert, .error-text, .success-text, .warning-text')
+    .forEach(el => {
+        el.style.transition = "opacity 0.4s";
+        el.style.opacity = "0";
+        setTimeout(() => el.remove(), 400);
+    });
+}, 3000);
+
+function togglePassword(id){
+const input=document.getElementById(id);
+input.type=input.type==="password"?"text":"password";
+}
+
 const password=document.getElementById("password");
 const confirmPassword=document.getElementById("confirmPassword");
 
 confirmPassword.addEventListener("keyup",function(){
+
 if(password.value!==confirmPassword.value){
-confirmPassword.style.borderColor="red";
+
+confirmPassword.style.borderColor="#ff6b6b";
+
 }else{
+
 confirmPassword.style.borderColor="#00d2ff";
+
 }
+
 });
 </script>
 

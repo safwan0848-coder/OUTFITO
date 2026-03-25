@@ -27,12 +27,21 @@ position:absolute;
 width:100%;
 height:100%;
 object-fit:cover;
-transform:scale(1.05);
+object-position:center;
+filter:brightness(0.85);
 }
 .image-overlay{
 position:absolute;
 inset:0;
-background:linear-gradient(to bottom, rgba(10,15,26,0.2), rgba(10,15,26,0.85));
+background:
+linear-gradient(90deg,
+rgba(10,15,26,0.05) 0%,
+rgba(10,15,26,0.18) 25%,
+rgba(10,15,26,0.35) 45%,
+rgba(10,15,26,0.55) 65%,
+rgba(10,15,26,0.75) 82%,
+rgba(10,15,26,0.9) 100%),
+radial-gradient(circle at 70% 45%, rgba(59,130,246,0.12), transparent 65%);
 }
 .right-section{
 background:#0a0f1a;
@@ -112,6 +121,59 @@ font-weight:700;
 font-size:14px;
 color:#00e5ff;
 }
+
+.premium-otp-form{
+margin-top:10px;
+}
+
+.otp-group{
+display:flex;
+justify-content:space-between;
+gap:12px;
+margin-bottom:24px;
+}
+
+.otp-input{
+width:60px;
+height:70px;
+text-align:center;
+font-size:28px;
+font-weight:700;
+background:#101622;
+border:2px solid #1f2937;
+border-radius:16px;
+color:#fff;
+transition:all .25s ease;
+}
+
+.otp-input:hover{
+border-color:#3b82f6;
+}
+
+.otp-input:focus{
+border-color:#0d59f2;
+box-shadow:
+0 0 10px rgba(13,89,242,.6),
+0 0 25px rgba(13,89,242,.25);
+outline:none;
+}
+
+.premium-btn{
+background:linear-gradient(90deg,#2563eb,#3b82f6);
+border:none;
+padding:16px;
+font-weight:700;
+border-radius:20px;
+transition:.25s;
+}
+
+.premium-btn:hover{
+background:linear-gradient(90deg,#1d4ed8,#00e5ff);
+box-shadow:
+0 0 12px rgba(0,229,255,.5),
+0 0 30px rgba(0,229,255,.2);
+transform:translateY(-1px);
+}
 </style>
 </head>
 
@@ -121,7 +183,7 @@ color:#00e5ff;
 <div class="row vh-100">
 
 <div class="col-lg-6 d-none d-lg-block left-section p-0">
-<img src="{% static 'images/Login.jpeg' %}">
+<img src="{% static 'images/Model4.jpeg' %}">
 <div class="image-overlay"></div>
 </div>
 
@@ -141,37 +203,32 @@ We sent a 6-digit code to your email <br>
 </p>
 
 {% if messages %}
-{% for message in messages %}
-{% if forloop.last %}
-<div class="alert
-{% if message.tags == 'error' %}
-alert-danger
-{% elif message.tags == 'success' %}
-alert-success
-{% else %}
-alert-warning
-{% endif %}
-">
-{{ message }}
-</div>
-{% endif %}
-{% endfor %}
+    {% for message in messages %}
+        <div class="alert
+        {% if message.tags == 'error' %}alert-danger
+        {% elif message.tags == 'success' %}alert-success
+        {% else %}alert-warning
+        {% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
 {% endif %}
 
-<form method="POST">
+<form method="POST" class="premium-otp-form">
+
 {% csrf_token %}
 
 <input type="hidden" name="otp" id="final_otp">
 
-<div class="row g-2 mb-4">
+<div class="otp-group">
+
 {% for i in "123456" %}
-<div class="col-2">
 <input type="text" maxlength="1" class="otp-input otp-box">
-</div>
 {% endfor %}
+
 </div>
 
-<button type="submit" class="btn btn-primary w-100">
+<button type="submit" class="premium-btn w-100">
 Verify & Proceed →
 </button>
 
@@ -197,6 +254,15 @@ Didn't receive the code?
 </div>
 
 <script>
+
+setTimeout(() => {
+    document.querySelectorAll('.alert, .error-text, .success-text, .warning-text')
+    .forEach(el => {
+        el.style.transition = "opacity 0.4s";
+        el.style.opacity = "0";
+        setTimeout(() => el.remove(), 400);
+    });
+}, 3000);
 const inputs=document.querySelectorAll(".otp-box");
 const hiddenInput=document.getElementById("final_otp");
 

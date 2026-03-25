@@ -1,17 +1,28 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Outfito Profile</title>
+<title>OUTFITO • Premium Profile</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 
 <style>
+
+:root{
+--bg:#06080f;
+--card:#0f172a;
+--accent:#10b981;
+--accent2:#3b82f6;
+--border:#1f2937;
+--muted:#6b7280;
+}
 
 *{
 margin:0;
@@ -20,364 +31,334 @@ box-sizing:border-box;
 }
 
 body{
-font-family:'Montserrat',sans-serif;
-background: radial-gradient(circle at 20% 20%, #1a2533 0%, #060b13 100%);
+font-family:'Inter',sans-serif;
+background:
+radial-gradient(circle at 80% 20%,#0f172a,transparent 40%),
+radial-gradient(circle at 20% 80%,#111827,transparent 40%),
+var(--bg);
 color:white;
 min-height:100vh;
-display:flex;
-overflow-x:hidden;
-}
-
-/* SIDEBAR */
-
-.sidebar{
-width:240px;
-min-height:100vh;
-background:rgba(0,0,0,0.35);
-backdrop-filter:blur(12px);
-border-right:1px solid rgba(255,255,255,0.08);
-padding:40px 20px;
 display:flex;
 flex-direction:column;
-flex-shrink:0;
 }
 
-.logo{
-font-weight:900;
-font-size:22px;
-letter-spacing:4px;
-font-style:italic;
-margin-bottom:50px;
-text-align:center;
-}
+/* HEADER */
 
-.sidebar a{
+.header{
+height:70px;
+border-bottom:1px solid var(--border);
 display:flex;
 align-items:center;
-gap:12px;
-padding:14px 16px;
-border-radius:12px;
+justify-content:space-between;
+padding:0 40px;
+backdrop-filter:blur(10px);
+}
+
+.brand{
+font-family:'Playfair Display',serif;
+font-size:1.4rem;
+letter-spacing:6px;
+font-weight:700;
+padding-left:70px;
+}
+
+.brand a{
 text-decoration:none;
-color:rgba(255,255,255,0.4);
-margin-bottom:8px;
-transition:0.2s;
-font-size:11px;
-letter-spacing:1px;
-text-transform:uppercase;
-font-weight:600;
-}
-
-.sidebar a:hover{
-background:rgba(255,255,255,0.05);
-color:white;
-}
-
-.sidebar .active{
-background:rgba(255,255,255,0.08);
-color:white;
+background:linear-gradient(90deg,#fff,var(--accent));
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
 /* MAIN */
 
 .main{
 flex:1;
+padding:40px 0;
+}
+
+.layout{
+display:grid;
+grid-template-columns:260px 1fr;
+gap:40px;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+padding:10px;
+}
+
+.nav-item{
 display:flex;
 align-items:center;
-justify-content:center;
-padding:40px;
-width:100%;
+gap:12px;
+padding:12px 18px;
+border-radius:14px;
+color:var(--muted);
+text-decoration:none;
+transition:0.25s;
+font-size:14px;
+margin-bottom:6px;
+}
+
+.nav-item span{
+font-size:20px;
+}
+
+.nav-item:hover{
+background:rgba(255,255,255,.05);
+color:#fff;
+transform:translateX(5px);
+}
+
+.nav-item.active{
+background:rgba(16,185,129,.15);
+color:var(--accent);
+border-right:3px solid var(--accent);
 }
 
 /* PROFILE CARD */
 
 .profile-card{
-width:100%;
-max-width:850px;
-min-height:85vh;
-background:rgba(255,255,255,0.03);
+background:rgba(15,23,42,.85);
+border:1px solid var(--border);
+border-radius:26px;
+padding:50px;
 backdrop-filter:blur(20px);
-border:1px solid rgba(255,255,255,0.1);
-border-radius:32px;
-padding:45px 55px;
-display:flex;
-flex-direction:column;
-justify-content:space-evenly;
-box-shadow:0 20px 50px rgba(0,0,0,0.3);
-gap:30px;
+box-shadow:0 40px 70px rgba(0,0,0,.7);
+max-width:800px;
+margin:auto;
 }
 
-/* HEADER */
+.avatar-wrap{
+width:120px;
+height:120px;
+margin:auto;
+margin-bottom:20px;
+position:relative;
+}
 
-.profile-header{
+.avatar-ring{
+position:absolute;
+inset:-3px;
+border-radius:50%;
+background:linear-gradient(135deg,var(--accent),var(--accent2));
+filter:blur(6px);
+opacity:.6;
+}
+
+.avatar{
+width:100%;
+height:100%;
+border-radius:50%;
+background:var(--bg);
 display:flex;
-justify-content:space-between;
 align-items:center;
-flex-wrap:wrap;
-gap:20px;
+justify-content:center;
+overflow:hidden;
+position:relative;
 }
 
-.profile-header h1{
-font-weight:900;
-font-size:32px;
+.avatar img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+.avatar span{
+font-size:42px;
+color:var(--muted);
+}
+
+/* TITLES */
+
+.title{
+font-family:'Playfair Display',serif;
+font-size:2.1rem;
+text-align:center;
 margin-bottom:5px;
 }
 
-.profile-header p{
-font-size:13px;
-color:rgba(255,255,255,0.45);
-margin-bottom:0;
+.member{
+text-align:center;
+font-size:.75rem;
+letter-spacing:2px;
+color:var(--muted);
 }
 
-.header-actions{
+/* INFO GRID */
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:16px;
+margin-top:35px;
+}
+
+.card-info{
+background:rgba(255,255,255,.02);
+border:1px solid var(--border);
+border-radius:16px;
+padding:16px 20px;
+transition:.3s;
+}
+
+.card-info:hover{
+border-color:var(--accent);
+background:rgba(255,255,255,.05);
+}
+
+.label{
+font-size:.65rem;
+text-transform:uppercase;
+letter-spacing:1px;
+color:var(--muted);
+margin-bottom:4px;
+}
+
+.value{
 display:flex;
-gap:10px;
+align-items:center;
+gap:8px;
+font-size:.95rem;
+}
+
+.value span{
+color:var(--accent);
 }
 
 /* BUTTONS */
 
-.btn-gold{
-background:linear-gradient(135deg,rgba(255,184,46,.9),rgba(255,184,46,.5));
-border:none;
-padding:12px 22px;
-font-size:11px;
-font-weight:700;
-letter-spacing:1px;
-border-radius:14px;
-color:white;
+/* BUTTONS */
+
+.actions{
+margin-top:40px;
 display:flex;
-align-items:center;
-gap:6px;
-text-decoration:none;
-transition:0.2s;
-}
-
-.btn-coral{
-background:linear-gradient(135deg,rgba(255,95,95,.9),rgba(255,95,95,.5));
-border:none;
-padding:12px 22px;
-font-size:11px;
-font-weight:700;
-letter-spacing:1px;
-border-radius:14px;
-color:white;
-display:flex;
-align-items:center;
-gap:6px;
-text-decoration:none;
-transition:0.2s;
-}
-
-.btn-gold:hover,
-.btn-coral:hover{
-opacity:0.85;
-color:white;
-}
-
-/* AVATAR */
-
-.profile-avatar{
-width:140px;
-height:140px;
-border-radius:50%;
-border:3px solid #ffb82e;
-box-shadow:0 0 25px rgba(255,184,46,.3);
-overflow:hidden;
-margin:0 auto;
-background:#0f172a;
-display:flex;
-align-items:center;
 justify-content:center;
-}
-
-.profile-avatar img{
-width:100%;
-height:100%;
-object-fit:cover;
-object-position:center;
-}
-
-/* DEFAULT ICON */
-
-.default-avatar-icon{
-font-size:80px;
-color:rgba(255,255,255,0.3);
-}
-
-/* MEMBER TEXT */
-
-.member-text{
-font-size:11px;
-color:#9ca3af;
-text-align:center;
-margin-top:10px;
-}
-
-/* FORM */
-
-.form-area{
-width:80%;
-margin:0 auto;
-}
-
-.form-group{
-margin-bottom:20px;
-}
-
-.form-label-custom{
-font-size:10px;
-font-weight:700;
-letter-spacing:2px;
-text-transform:uppercase;
-color:rgba(255,255,255,0.4);
-margin-bottom:8px;
-}
-
-.glass-field{
-display:flex;
-align-items:center;
 gap:14px;
-background:rgba(255,255,255,0.02);
-border:1px solid rgba(255,255,255,0.1);
-border-radius:16px;
-padding:16px 20px;
-font-size:14px;
-font-weight:600;
-color:white;
-word-break:break-all;
+flex-wrap:wrap;
 }
 
-/* SECURITY BUTTON */
-
-.security-btn{
-background:transparent;
-border:1px solid rgba(255,255,255,0.2);
-padding:14px 28px;
-border-radius:30px;
-font-size:10px;
+.btn-premium{
+background:#fff;
+color:#000;
+border:none;
+padding:12px 26px;
+border-radius:14px;
 font-weight:700;
-letter-spacing:2px;
+font-size:12px;
+letter-spacing:1px;
 text-transform:uppercase;
-color:white;
-display:inline-flex;
-align-items:center;
-gap:8px;
-text-decoration:none;
-transition:0.3s;
-}
-
-.security-btn:hover{
-background:rgba(255,255,255,0.1);
-}
-
-/* MESSAGES */
-
-.error-msg{
-font-size:13px;
-color:#ff4d4d;
-text-align:center;
-margin-bottom:10px;
-}
-
-.success-msg{
-font-size:13px;
-color:#22c55e;
-text-align:center;
-margin-bottom:10px;
-}
-
-.warning-msg{
-font-size:13px;
-color:#facc15;
-text-align:center;
-margin-bottom:10px;
-}
-
-/* RESPONSIVE */
-
-@media (max-width:768px){
-
-body{
-flex-direction:column;
-}
-
-.sidebar{
-width:100%;
-min-height:auto;
-padding:20px;
-border-right:none;
-border-bottom:1px solid rgba(255,255,255,0.08);
-}
-
-.sidebar-nav{
 display:flex;
-overflow-x:auto;
-gap:10px;
+align-items:center;
+gap:6px;
+transition:.25s;
 }
 
-.sidebar a{
-margin-bottom:0;
-white-space:nowrap;
+.btn-premium:hover{
+background:var(--accent);
+transform:translateY(-3px);
+box-shadow:0 10px 25px rgba(16,185,129,.35);
 }
 
-.main{
-padding:20px;
+/* SECURITY BUTTON (FILLED LIKE EDIT) */
+
+/* EDIT BUTTON */
+
+.btn-edit{
+background:linear-gradient(135deg,#facc15,#f59e0b);
+color:#000;
+border:none;
+padding:12px 26px;
+border-radius:14px;
+font-weight:700;
+font-size:12px;
+letter-spacing:1px;
+text-transform:uppercase;
+display:flex;
+align-items:center;
+gap:6px;
+transition:.25s;
 }
 
-.profile-card{
-padding:30px 20px;
-border-radius:24px;
+.btn-edit:hover{
+transform:translateY(-3px);
+box-shadow:0 10px 25px rgba(250,204,21,.35);
 }
 
-.profile-header{
-flex-direction:column;
-text-align:center;
+.btn-security{
+background:linear-gradient(135deg,var(--accent),var(--accent2));
+color:#fff;
+border:none;
+padding:12px 26px;
+border-radius:14px;
+font-weight:700;
+font-size:12px;
+letter-spacing:1px;
+text-transform:uppercase;
+display:flex;
+align-items:center;
+gap:6px;
+transition:.25s;
 }
 
-.header-actions{
-justify-content:center;
+.btn-security:hover{
+transform:translateY(-3px);
+box-shadow:0 10px 25px rgba(59,130,246,.35);
 }
 
-.form-area{
-width:100%;
+/* LOGOUT BUTTON */
+
+.btn-logout{
+background:linear-gradient(135deg,#ef4444,#dc2626);
+color:#fff;
+border:none;
+padding:12px 26px;
+border-radius:14px;
+font-weight:700;
+font-size:12px;
+letter-spacing:1px;
+text-transform:uppercase;
+display:flex;
+align-items:center;
+gap:6px;
+transition:.25s;
 }
 
+.btn-logout:hover{
+transform:translateY(-3px);
+box-shadow:0 10px 25px rgba(239,68,68,.35);
 }
-.modal-overlay{
+/* MODAL */
+
+.modal-bg{
 position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.6);
-display:flex;
+inset:0;
+background:rgba(0,0,0,.85);
+display:none;
 align-items:center;
 justify-content:center;
-z-index:999;
+backdrop-filter:blur(8px);
 }
 
-.delete-modal-box{
-background:white;
-padding:30px 40px;
-border-radius:16px;
+.modal-box{
+background:var(--card);
+border:1px solid var(--border);
+border-radius:20px;
+padding:40px;
 text-align:center;
-max-width:350px;
-width:90%;
+max-width:420px;
 }
 
-.btn-yes{
-background:#22c55e;
-border:none;
-padding:10px 20px;
-border-radius:10px;
-color:white;
-}
+/* FOOTER */
 
-.btn-no{
-background:#ef4444;
-border:none;
-padding:10px 20px;
-border-radius:10px;
-color:white;
+.footer{
+border-top:1px solid var(--border);
+text-align:center;
+font-size:10px;
+letter-spacing:2px;
+padding:20px;
+color:var(--muted);
 }
 
 </style>
@@ -385,36 +366,20 @@ color:white;
 
 <body>
 
-<div class="sidebar">
+<div class="header">
 
-<div class="logo">OUTFITO</div>
+<div class="brand text-decoration-none"><a href="{% url 'landing' %}">OUTFITO</a></div>
 
-<div class="sidebar-nav">
+<div style="display:flex;gap:20px;align-items:center">
 
-<a class="active" href="{% url 'profile' %}">
+
+<div style="width:32px;height:32px;border-radius:50%;overflow:hidden;border:1px solid var(--accent)">
+{% if profile.profile_image %}
+<img src="{{ profile.profile_image.url }}" width="100%">
+{% else %}
 <span class="material-symbols-outlined">person</span>
-Profile
-</a>
-
-<a href="{% url 'address' %}">
-<span class="material-symbols-outlined">location_on</span>
-Address
-</a>
-
-<a href="{% url 'orders' %}">
-<span class="material-symbols-outlined">shopping_bag</span>
-Orders
-</a>
-
-<a href="{% url 'wishlist' %}">
-<span class="material-symbols-outlined">favorite</span>
-Wishlist
-</a>
-
-<a href="{% url 'wallet' %}">
-<span class="material-symbols-outlined">account_balance_wallet</span>
-Wallet
-</a>
+{% endif %}
+</div>
 
 </div>
 
@@ -422,157 +387,161 @@ Wallet
 
 <div class="main">
 
+<div class="container-xl layout">
+
+<div class="sidebar">
+
+<a href="{% url 'profile' %}" class="nav-item active">
+<span class="material-symbols-outlined">person</span>Profile
+</a>
+
+<a href="{% url 'address-list' %}" class="nav-item">
+<span class="material-symbols-outlined">location_on</span>Address
+</a>
+
+<a href="{% url 'orders' %}" class="nav-item">
+<span class="material-symbols-outlined">package_2</span>Orders
+</a>
+
+<a href="{% url 'wishlist' %}" class="nav-item">
+<span class="material-symbols-outlined">favorite</span>Wishlist
+</a>
+
+<a href="{% url 'wallet' %}" class="nav-item">
+<span class="material-symbols-outlined">account_balance_wallet</span>Wallet
+</a>
+
+</div>
+
+<div>
+
 <div class="profile-card">
 
-{% if messages %}
-{% for message in messages %}
-{% if forloop.last %}
-<div class="
-{% if message.tags == 'error' %}
-error-msg
-{% elif message.tags == 'success' %}
-success-msg
-{% else %}
-warning-msg
-{% endif %}
-">
-{{ message }}
-</div>
-{% endif %}
-{% endfor %}
-{% endif %}
+<div class="avatar-wrap">
 
-<div class="profile-header">
+<div class="avatar-ring"></div>
 
-<div>
-<h1>MY PROFILE</h1>
-<p>Manage your digital identity and account security.</p>
-</div>
-
-<div class="header-actions">
-
-<button class="btn-coral" onclick="openLogoutModal()">
-<span class="material-symbols-outlined">logout</span>
-Logout
-</button>
-
-<a href="{% url 'edit-profile' %}" class="btn-gold">
-<span class="material-symbols-outlined">edit</span>
-Edit Profile
-</a>
-
-</div>
-
-</div>
-
-<div>
-
-<div class="profile-avatar">
+<div class="avatar">
 
 {% if profile.profile_image %}
-<img src="{{ profile.profile_image.url }}" alt="Profile Image">
+<img src="{{ profile.profile_image.url }}">
 
 {% elif profile.google_image %}
-<img src="{{ profile.google_image }}" alt="Google Profile Image">
+<img src="{{ profile.google_image }}">
 
 {% else %}
-<span class="material-symbols-outlined default-avatar-icon">person</span>
+<span class="material-symbols-outlined">person</span>
 {% endif %}
 
 </div>
 
-<p class="member-text">
-Member Since <span style="color:#ffb82e">{{ user.date_joined|date:"M d, Y" }}</span>
-</p>
-
 </div>
 
-<div class="form-area">
+<div class="title">Account Profile</div>
 
-<div class="form-group">
+<div class="member">
+MEMBER SINCE {{ user.date_joined|date:"Y" }}
+</div>
 
-<div class="form-label-custom">Full Name</div>
+<div class="grid">
 
-<div class="glass-field">
-<span class="material-symbols-outlined">person</span>
+<div class="card-info">
+<div class="label">Identity</div>
+<div class="value">
+<span class="material-symbols-outlined">verified_user</span>
 {{ user.username }}
 </div>
-
 </div>
 
-<div class="form-group">
-
-<div class="form-label-custom">Email Address</div>
-
-<div class="glass-field">
-<span class="material-symbols-outlined">mail</span>
+<div class="card-info">
+<div class="label">Email</div>
+<div class="value">
+<span class="material-symbols-outlined">alternate_email</span>
 {{ user.email }}
 </div>
-
 </div>
 
-<div class="form-group">
-
-<div class="form-label-custom">Phone Connection</div>
-
-<div class="glass-field">
-<span class="material-symbols-outlined">call</span>
-{{ profile.phone|default:"Not added" }}
+<div class="card-info" style="grid-column:span 2">
+<div class="label">Phone</div>
+<div class="value">
+<span class="material-symbols-outlined">phone_iphone</span>
+{{ profile.phone|default:"Unlinked Account" }}
 </div>
-
 </div>
 
 </div>
 
-<div class="text-center">
+<div class="actions">
+
+<a href="{% url 'edit-profile' %}" class="btn-edit">
+<span class="material-symbols-outlined">edit_square</span>Edit
+</a>
 
 {% if not profile.google_image %}
-<a href="{% url 'change-password' %}" class="security-btn">
-<span class="material-symbols-outlined">key</span>
-Update Security Credentials
+<a href="{% url 'change-password' %}" class="btn-security">
+<span class="material-symbols-outlined">key</span>Security
 </a>
 {% endif %}
 
+<button class="btn-logout" onclick="openLogout()">
+<span class="material-symbols-outlined">logout</span>Logout
+</button>
+
+</div>
+
+</div>
+
 </div>
 
 </div>
 
 </div>
-<div id="logoutModal" class="modal-overlay" style="display:none;">
 
-<div class="delete-modal-box">
+<div id="logoutModal" class="modal-bg">
 
-<h5 style="color:black;">Are you sure you want to logout?</h5>
+<div class="modal-box">
+
+<h5 class="mb-3">Logout from account?</h5>
 
 <form method="POST" action="{% url 'logout' %}">
 {% csrf_token %}
 
-<div class="d-flex justify-content-center gap-3 mt-4">
+<div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
 
-<button type="submit" class="btn-yes">
-Yes
-</button>
+<button type="button" class="btn-ghost" onclick="closeLogout()">Cancel</button>
 
-<button type="button" class="btn-no" onclick="closeLogoutModal()">
-No
-</button>
+<button type="submit" class="btn-premium" style="background:#ef4444;color:white">Logout</button>
 
 </div>
 
 </form>
 
 </div>
-</div>
-</body>
-<script>
 
-function openLogoutModal(){
-    document.getElementById("logoutModal").style.display="flex";
+</div>
+
+<div class="footer">
+OUTFITO PREMIUM STORE • GLOBAL SECURITY
+</div>
+
+<script>
+setTimeout(() => {
+    document.querySelectorAll('.error-text, .success-text, .warning-text')
+    .forEach(el => {
+        el.style.opacity = "0";
+        setTimeout(() => el.remove(), 400);
+    });
+}, 3000);
+
+function openLogout(){
+document.getElementById("logoutModal").style.display="flex";
 }
 
-function closeLogoutModal(){
-    document.getElementById("logoutModal").style.display="none";
+function closeLogout(){
+document.getElementById("logoutModal").style.display="none";
 }
 
 </script>
+
+</body>
 </html>

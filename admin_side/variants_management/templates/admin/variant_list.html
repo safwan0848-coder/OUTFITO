@@ -1,0 +1,624 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Variant Management</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-sidebar: #f6f5f2;
+            --bg-main: #faf9f7;
+            --brand-green: #0a4d3c;
+            --brand-green-hover: #07382b;
+            --text-dark: #1f1f1f;
+            --text-muted: #8e8e8e;
+            --border-light: #eaeaea;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+        }
+
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Layout */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-light);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            color: var(--brand-green);
+            font-size: 1.75rem;
+            padding: 2rem 1.5rem 1.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #a0a0a0;
+            font-weight: 600;
+            padding: 0 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #555;
+            text-decoration: none;
+            padding: 0.65rem 1.5rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin-right: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link-custom i {
+            font-size: 1.1rem;
+            color: #777;
+        }
+
+        .nav-link-custom:hover {
+            background-color: rgba(0,0,0,0.03);
+            color: var(--text-dark);
+        }
+
+        .nav-link-custom.active {
+            background-color: #ffffff;
+            color: var(--text-dark);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .nav-link-custom.active i {
+            color: var(--text-dark);
+        }
+
+        .nav-link-custom.active-green {
+            background-color: #e5efe9;
+            color: var(--brand-green);
+            border-left: 3px solid var(--brand-green);
+        }
+
+        .nav-link-custom.active-green i {
+            color: var(--brand-green);
+        }
+
+        .user-profile {
+            margin-top: auto;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            margin-left: 1rem;
+            margin-right: 1rem;
+            background: rgba(255,255,255,0.6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-profile img {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        /* Main Content Styling */
+        .main-content {
+            margin-left: 260px;
+            flex-grow: 1;
+            padding: 2.5rem 3rem;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            color: #2c2c2c;
+            margin-bottom: 0.2rem;
+        }
+
+        /* Summary Card */
+        .summary-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.01);
+            margin-bottom: 2rem;
+        }
+
+        .product-img-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-img-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;   /* 🔥 keeps proper ratio */
+}
+
+.no-img {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+}
+
+        .stat-divider {
+            width: 1px;
+            height: 40px;
+            background-color: var(--border-light);
+            margin: 0 2rem;
+        }
+
+        /* Controls Area */
+        .search-container {
+            position: relative;
+            width: 320px;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-light);
+            font-size: 0.95rem;
+            outline: none;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+        }
+
+        .search-input:focus {
+            border-color: #ccc;
+        }
+
+        .btn-brand {
+            background-color: var(--brand-green);
+            color: #fff;
+            border-radius: 8px;
+            padding: 0.6rem 1.25rem;
+            font-weight: 500;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .btn-brand:hover {
+            background-color: var(--brand-green-hover);
+            color: #fff;
+        }
+
+        .btn-outline-custom {
+            border: 1px solid var(--border-light);
+            background: #fff;
+            color: var(--text-dark);
+            border-radius: 8px;
+            padding: 0.6rem 1.25rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: 0.2s;
+        }
+
+        .btn-outline-custom:hover {
+            background-color: #f9f9f9;
+        }
+
+        /* Table Styling */
+        .table-wrapper {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.01);
+        }
+
+        .table-custom {
+            margin-bottom: 0;
+        }
+
+        .table-custom thead th {
+            background: #fff;
+            color: #a0a0a0;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .table-custom tbody td {
+            padding: 1.25rem 1rem;
+            vertical-align: middle;
+            background: #fff;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 0.95rem;
+        }
+
+        .table-custom tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-custom tbody tr:hover td {
+            background-color: #fafafa;
+        }
+
+        /* Elements inside table */
+        .radio-custom {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        .radio-custom.checked {
+            border-color: var(--brand-green);
+        }
+
+        .radio-custom.checked::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--brand-green);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .variant-swatch {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            object-fit: cover;
+            background-color: #222; /* Fallback for missing images */
+        }
+
+        .variant-swatch-placeholder {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background-color: #e5e5e5;
+        }
+
+        .sku-text {
+            color: #999;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Badges */
+        .badge-pill {
+            padding: 0.4em 0.8em;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-active { background: #e0f2e9; color: #0d7f4b; }
+        .badge-inactive { background: #f0f0f0; color: #777; }
+        
+        .stock-in { color: #0d7f4b; background: #e0f2e9; }
+        .stock-low { color: #d97706; background: #fef3c7; }
+
+        .action-btn {
+            color: #999;
+            text-decoration: none;
+            transition: color 0.2s;
+            background: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .action-btn:hover { color: #333; }
+
+        /* Pagination area */
+        .pagination-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .page-btn {
+            border: 1px solid var(--border-light);
+            background: #fff;
+            color: var(--text-dark);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .page-btn.active {
+            background: var(--brand-green);
+            color: #fff;
+            border-color: var(--brand-green);
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    
+    <!-- Sidebar (UI Mockup) -->
+    <aside class="sidebar">
+        <div class="sidebar-brand font-serif">
+            Outfito
+        </div>
+
+        <div class="sidebar-section-title mt-4">Management</div>
+        <a href="#" class="nav-link-custom"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+        <a href="#" class="nav-link-custom"><i class="bi bi-bag"></i> Orders</a>
+        <a href="#" class="nav-link-custom active"><i class="bi bi-box-seam"></i> Products</a>
+        <a href="#" class="nav-link-custom"><i class="bi bi-collection"></i> Categories</a>
+        <a href="#" class="nav-link-custom"><i class="bi bi-ticket-perforated"></i> Coupons</a>
+        <a href="#" class="nav-link-custom"><i class="bi bi-percent"></i> Offers</a>
+        <a href="#" class="nav-link-custom"><i class="bi bi-people"></i> Customers</a>
+
+        <a href="#" class="nav-link-custom active-green mt-3"><i class="bi bi-star-fill"></i> Reviews</a>
+
+        <!-- Dummy User Profile for UI Exact Match -->
+        <div class="user-profile">
+            <img src="https://ui-avatars.com/api/?name=Julian+Vane&background=0D8ABC&color=fff" alt="User">
+            <div style="line-height: 1.2;">
+                <div style="font-size: 0.9rem; font-weight: 600;">Julian Vane</div>
+                <div style="font-size: 0.75rem; color: #777;">julian@outfito.com</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        
+        <!-- Header -->
+        <div class="mb-4">
+            <h1 class="page-title font-serif">Variant Management</h1>
+            <p class="text-muted" style="font-size: 0.95rem;">Configure and manage product SKU variations</p>
+        </div>
+
+        <!-- Product Summary Card -->
+        <div class="summary-card">
+            <div class="d-flex align-items-center gap-3">
+                <!-- Fallback image since single product image isn't in original loop context directly -->
+                <div class="product-img-large">
+
+    {% if variant and variant.image %}
+        <img src="{{ variant.image.url }}">
+
+    {% elif product.image_side %}
+        <img src="{{ product.image_side.url }}">
+
+    {% elif product.image_back %}
+        <img src="{{ product.image_back.url }}">
+
+    {% else %}
+        <div class="no-img">
+            <i class="bi bi-image fs-3"></i>
+        </div>
+    {% endif %}
+
+</div>
+                <div>
+                    <h3 class="font-serif mb-1" style="font-size: 1.5rem; color: #1a1a1a;">
+                        {% if product %}{{ product.name }}{% else %}Product Name{% endif %}
+                    </h3>
+                    <div class="text-muted" style="font-size: 0.85rem;">
+                        <i class="bi bi-diamond-fill" style="font-size: 0.5rem; vertical-align: middle; margin-right: 4px;"></i>
+                        Luxe Collection / Outfito Couture
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center">
+                <div class="text-center">
+                    <div class="text-muted" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;">Total Variants</div>
+                    <div class="font-serif" style="font-size: 1.8rem; color: #333; line-height: 1;">
+                        {{ variants|length|default:"0" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toolbar (Search, Filter, Add) -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="search-container">
+                <i class="bi bi-search"></i>
+                <input type="text" class="search-input" placeholder="Search SKU or attribute...">
+            </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn-outline-custom">
+                    <i class="bi bi-funnel"></i> Filter
+                </button>
+                <a href="{% url 'add_variant' product.id %}" class="btn-brand">
+                    <i class="bi bi-plus-lg"></i> Add Variant
+                </a>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="table-wrapper">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th style="width: 80px; text-align: center;">Default</th>
+                        <th>Variants</th>
+                        <th>SKU</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th style="text-align: center;">Stock</th>
+                        <th>Stock Status</th>
+                        <th style="text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in variants %}
+                    <tr>
+                        <!-- Default Radio -->
+                        <td class="text-center">
+                            <a href="{% url 'set_default_variant' v.id %}" style="text-decoration: none;">
+                                <span class="radio-custom {% if v.is_default %}checked{% endif %}"></span>
+                            </a>
+                        </td>
+
+                        <!-- Variant Info -->
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                {% if v.image %}
+                                    <img src="{{ v.image.url }}" class="variant-swatch" alt="variant">
+                                {% else %}
+                                    <div class="variant-swatch-placeholder"></div>
+                                {% endif %}
+                                <div style="line-height: 1.3;">
+                                    <div style="font-weight: 600; font-size: 0.95rem;">{{ v.color }}</div>
+                                    <div class="text-muted" style="font-size: 0.8rem;">{{ v.size }}</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- SKU -->
+                        <td>
+                            <div class="sku-text">{{ v.sku }}</div>
+                        </td>
+
+                        <!-- Price -->
+                        <td style="font-weight: 700; color: #333;">
+                            ₹{{ v.price }}
+                        </td>
+
+                        <!-- Status Badge -->
+                        <td>
+                            {% if v.is_active %}
+                                <span class="badge-pill badge-active">Active</span>
+                            {% else %}
+                                <span class="badge-pill badge-inactive">Inactive</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Stock Count -->
+                        <td class="text-center" style="font-weight: 600;">
+                            {{ v.stock }}
+                        </td>
+
+                        <!-- Stock Status Badge -->
+                        <td>
+                            {% if v.stock <= 5 %}
+                                <span class="badge-pill stock-low">Low Stock</span>
+                            {% else %}
+                                <span class="badge-pill stock-in">In Stock</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="text-center">
+                            <a href="{% url 'edit_variant' v.id %}" class="action-btn me-3" title="Edit">
+                                <i class="bi bi-pencil" style="font-size: 1.1rem;"></i>
+                            </a>
+                            <a href="{% url 'delete_variant' v.id %}" class="action-btn" title="Delete" onclick="return confirm('Delete this variant?')">
+                                <i class="bi bi-trash" style="font-size: 1.1rem;"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            No variants found for this product.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination UI Mockup -->
+        <div class="pagination-area">
+            <div class="text-muted" style="font-size: 0.85rem;">
+                Showing {{ variants|length }} variants
+            </div>
+            <div class="d-flex gap-1">
+                <a href="#" class="page-btn">Prev</a>
+                <a href="#" class="page-btn active">1</a>
+                <a href="#" class="page-btn">2</a>
+                <a href="#" class="page-btn">3</a>
+                <a href="#" class="page-btn">Next</a>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- Bootstrap 5 JS Bundle (Includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

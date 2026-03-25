@@ -1,0 +1,1190 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Outfito | Edit Product</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"/>
+
+  <style>
+    :root {
+      --primary:#064e3b; --primary-hover:#043d2e; --accent:#10b981;
+      --bg:#fdfbf7; --sidebar-bg:#f9f6f0; --card-bg:#ffffff;
+      --input-bg:#f8fafc; --input-bg-inner:#ffffff;
+      --border:#e2e8f0; --border-light:#f1f5f9;
+      --text:#1e293b; --text-muted:#94a3b8; --text-sub:#64748b;
+      --section-bg:#f8fafc;
+      --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+      --shadow-card:0 20px 40px rgba(148,163,184,.18),0 0 0 1px rgba(226,232,240,.6);
+      --shadow-btn:0 8px 24px rgba(6,78,59,.22);
+      --radius-sm:.5rem; --radius:.75rem; --radius-lg:1rem;
+      --sidebar-w:260px;
+      --font-display:'Playfair Display',serif;
+      --font-body:'DM Sans',sans-serif;
+      --tr:.2s ease;
+    }
+    [data-theme="dark"] {
+      --bg:#0f172a; --sidebar-bg:#1e293b; --card-bg:#1e293b;
+      --input-bg:#1e293b; --input-bg-inner:#0f172a;
+      --border:#334155; --border-light:#334155;
+      --text:#f1f5f9; --text-muted:#94a3b8; --text-sub:#94a3b8;
+      --section-bg:rgba(30,41,59,.5);
+      --shadow-card:none; --shadow-btn:0 8px 24px rgba(6,78,59,.4);
+    }
+    *,*::before,*::after { box-sizing:border-box; }
+    html,body { height:100%; margin:0; }
+    body { font-family:var(--font-body); background:var(--bg); color:var(--text); min-height:100vh; display:flex; transition:background var(--tr),color var(--tr); }
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:var(--border); border-radius:10px; }
+
+    /* ── Sidebar ── */
+    .sidebar { width:var(--sidebar-w); background:var(--sidebar-bg); border-right:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; position:sticky; top:0; height:100vh; overflow-y:auto; }
+    .sidebar-brand { padding:2rem 2rem 1.5rem; }
+    .sidebar-brand h1 { font-family:var(--font-display); font-size:1.875rem; font-weight:700; color:var(--primary); letter-spacing:-.02em; margin:0; line-height:1; }
+    [data-theme="dark"] .sidebar-brand h1 { color:#34d399; }
+    .sidebar-nav { flex:1; padding:0 1rem; }
+    .nav-section-label { font-size:.625rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--text-muted); padding:.5rem 1rem .75rem; display:block; }
+    .nav-item { display:flex; align-items:center; gap:.75rem; padding:.7rem 1rem; border-radius:var(--radius-sm); font-size:.875rem; font-weight:500; color:var(--text-sub); text-decoration:none; transition:background var(--tr),color var(--tr); margin-bottom:2px; }
+    .nav-item:hover { background:var(--card-bg); color:var(--text); }
+    [data-theme="dark"] .nav-item:hover { background:rgba(51,65,85,.6); }
+    .nav-item.active { background:var(--card-bg); color:var(--primary); font-weight:600; border:1px solid var(--border-light); box-shadow:var(--shadow-sm); }
+    [data-theme="dark"] .nav-item.active { background:rgba(51,65,85,.8); color:#34d399; border-color:var(--border); }
+    .nav-item .material-icons-outlined { font-size:1.15rem; }
+    .nav-item.active .material-icons-outlined { color:var(--primary); }
+    [data-theme="dark"] .nav-item.active .material-icons-outlined { color:#34d399; }
+    .sidebar-footer { padding:1rem; border-top:1px solid var(--border); }
+    .user-card { display:flex; align-items:center; gap:.75rem; padding:.75rem; background:var(--card-bg); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); }
+    [data-theme="dark"] .user-card { background:rgba(51,65,85,.5); }
+    .user-avatar { width:40px; height:40px; border-radius:50%; object-fit:cover; background:var(--border); }
+    .user-name { font-size:.75rem; font-weight:600; line-height:1.3; }
+    .user-role { font-size:.625rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; }
+
+    /* ── Main ── */
+    .main-content { flex:1; padding:2rem 3rem 4rem; overflow-y:auto; min-width:0; }
+    .breadcrumb-nav { display:flex; align-items:center; gap:.4rem; font-size:.8rem; color:var(--text-muted); margin-bottom:.6rem; }
+    .breadcrumb-nav a { color:var(--text-muted); text-decoration:none; font-weight:500; transition:color var(--tr); }
+    .breadcrumb-nav a:hover { color:var(--primary); }
+    .breadcrumb-nav .sep { opacity:.5; }
+    .breadcrumb-nav .current { color:var(--text); font-weight:600; }
+    .page-heading-row { display:flex; align-items:center; gap:1rem; margin:0 0 2rem; flex-wrap:wrap; }
+    .page-heading { font-family:var(--font-display); font-size:1.6rem; font-weight:700; color:var(--text); margin:0; letter-spacing:-.01em; }
+    .sku-badge { background:var(--section-bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:.3rem .75rem; font-size:.7rem; font-weight:700; color:var(--text-muted); letter-spacing:.06em; font-family:var(--font-body); display:flex; align-items:center; gap:.35rem; }
+    .sku-badge .material-icons-outlined { font-size:.9rem; color:var(--accent); }
+
+    .edit-banner { display:flex; align-items:center; gap:.65rem; background:linear-gradient(135deg,rgba(6,78,59,.07),rgba(16,185,129,.05)); border:1px solid rgba(6,78,59,.15); border-radius:var(--radius); padding:.75rem 1rem; margin-bottom:1.5rem; font-size:.8rem; font-weight:500; color:var(--primary); }
+    [data-theme="dark"] .edit-banner { color:#34d399; border-color:rgba(52,211,153,.2); background:rgba(16,185,129,.06); }
+    .edit-banner .material-icons-outlined { font-size:1.1rem; }
+    .edit-banner-text { flex:1; }
+    .edit-banner-time { font-size:.7rem; color:var(--text-muted); font-weight:400; }
+
+    /* ── Messages ── */
+    .django-messages { margin-bottom:1.5rem; }
+    .msg-item { display:flex; align-items:center; gap:.65rem; padding:.75rem 1rem; border-radius:var(--radius-sm); font-size:.82rem; font-weight:500; margin-bottom:.5rem; animation:fadeIn .3s ease; }
+    .msg-success { background:#d1fae5; color:#065f46; border:1px solid rgba(16,185,129,.2); }
+    .msg-error   { background:#fee2e2; color:#991b1b; border:1px solid rgba(239,68,68,.2); }
+    [data-theme="dark"] .msg-success { background:rgba(16,185,129,.12); color:#6ee7b7; }
+    [data-theme="dark"] .msg-error   { background:rgba(239,68,68,.12); color:#fca5a5; }
+    .msg-close { margin-left:auto; background:none; border:none; cursor:pointer; color:inherit; opacity:.6; }
+    .msg-close:hover { opacity:1; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes spin   { to { transform:rotate(360deg); } }
+
+    /* ── Form Card ── */
+    .form-card { background:var(--card-bg); border-radius:1rem; box-shadow:var(--shadow-card); border:1px solid var(--border-light); overflow:hidden; }
+    .form-card-body { padding:2rem; }
+    .form-grid { display:flex; gap:3rem; }
+    .form-col-left  { flex:1; min-width:0; }
+    .form-col-right { flex:1; min-width:0; border-left:1px solid var(--border-light); padding-left:3rem; }
+
+    .field-label       { display:block; font-size:.65rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); margin-bottom:.5rem; }
+    .field-label-inner { display:block; font-size:.6rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:.4rem; }
+    .f-input,.f-select { width:100%; background:var(--input-bg); border:none; border-radius:var(--radius); padding:.75rem 1rem; font-size:.875rem; font-family:var(--font-body); color:var(--text); outline:none; transition:box-shadow var(--tr),background var(--tr); }
+    .f-input::placeholder { color:var(--text-muted); }
+    .f-input:focus,.f-select:focus { box-shadow:0 0 0 2px rgba(6,78,59,.18); }
+    .f-input.err { box-shadow:0 0 0 2px rgba(220,38,38,.35)!important; }
+    .f-select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 1rem center; cursor:pointer; padding-right:2.5rem; }
+    .f-select option { background:var(--card-bg); color:var(--text); }
+    .f-input-inner,.f-select-inner { width:100%; background:var(--input-bg-inner); border:1px solid var(--border); border-radius:var(--radius-sm); padding:.55rem .85rem; font-size:.825rem; font-family:var(--font-body); color:var(--text); outline:none; transition:border-color var(--tr),box-shadow var(--tr); }
+    .f-input-inner:focus,.f-select-inner:focus { border-color:var(--primary); box-shadow:0 0 0 2px rgba(6,78,59,.12); }
+    .f-input-inner.err { border-color:#dc2626!important; }
+    .f-select-inner { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right .8rem center; cursor:pointer; padding-right:2.2rem; }
+    .field-group { margin-bottom:1.75rem; }
+    .field-group-inner { margin-bottom:1.25rem; }
+    .char-count { font-size:.68rem; color:var(--text-muted); text-align:right; margin-top:.3rem; }
+    .char-count.warn { color:#f59e0b; }
+    .char-count.over { color:#dc2626; }
+    .field-hint { font-size:.7rem; margin-top:.35rem; display:none; align-items:center; gap:.25rem; color:#dc2626; }
+    .field-hint.show { display:flex; }
+    .field-hint .material-icons-outlined { font-size:.85rem; }
+
+    /* ── Description textarea ── */
+    .f-textarea { width:100%; background:var(--input-bg); border:none; border-radius:var(--radius); padding:.75rem 1rem; font-size:.875rem; font-family:var(--font-body); color:var(--text); outline:none; resize:vertical; min-height:110px; line-height:1.6; transition:box-shadow var(--tr),background var(--tr); }
+    .f-textarea::placeholder { color:var(--text-muted); }
+    .f-textarea:focus { box-shadow:0 0 0 2px rgba(6,78,59,.18); }
+
+    /* ── Image Grid ── */
+    .img-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .img-slot { border:2px dashed var(--border); border-radius:var(--radius); background:var(--input-bg); position:relative; overflow:hidden; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; height:220px; transition:border-color var(--tr),background var(--tr); }
+    .img-slot:hover { border-color:var(--primary); background:rgba(6,78,59,.03); }
+    .img-slot.has-image { border-style:solid; border-color:var(--primary); cursor:default; }
+    .img-slot.err { border-color:#dc2626!important; }
+    .slot-existing-tag { position:absolute; top:6px; left:8px; z-index:6; background:rgba(6,78,59,.85); color:#fff; font-size:8px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; padding:2px 8px; border-radius:8px; pointer-events:none; display:none; }
+    .img-slot.has-image .slot-existing-tag { display:block; }
+    .img-slot.is-new .slot-existing-tag { display:none; }
+    .new-tag { position:absolute; top:6px; left:8px; z-index:6; background:rgba(16,185,129,.9); color:#fff; font-size:8px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; padding:2px 8px; border-radius:8px; pointer-events:none; display:none; }
+    .img-slot.is-new .new-tag { display:block; }
+    .slot-ph { display:flex; flex-direction:column; align-items:center; gap:5px; pointer-events:none; }
+    .slot-ph .material-icons-outlined { font-size:1.8rem; color:var(--text-muted); transition:color var(--tr); }
+    .slot-ph span { font-size:.6rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em; transition:color var(--tr); }
+    .img-slot:hover .slot-ph .material-icons-outlined,.img-slot:hover .slot-ph span { color:var(--primary); }
+    .img-slot.has-image .slot-ph { display:none; }
+    .slot-req { position:absolute; top:6px; right:8px; color:#dc2626; font-size:.65rem; font-weight:700; pointer-events:none; }
+    .img-slot.has-image .slot-req { display:none; }
+    .slot-preview-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:none; z-index:2; border-radius:calc(var(--radius) - 2px); }
+    .img-slot.has-image .slot-preview-img { display:block; }
+    .slot-badge { position:absolute; bottom:6px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.55); color:#fff; font-size:9px; font-weight:700; letter-spacing:.7px; text-transform:uppercase; padding:2px 10px; border-radius:10px; white-space:nowrap; z-index:5; pointer-events:none; display:none; }
+    .img-slot.has-image .slot-badge { display:block; }
+    .slot-kb { position:absolute; bottom:6px; right:8px; background:rgba(0,0,0,.45); color:#ffffffcc; font-size:9px; font-weight:600; padding:2px 8px; border-radius:8px; z-index:5; pointer-events:none; display:none; }
+    .img-slot.has-image .slot-kb { display:block; }
+    .slot-btn-remove { position:absolute; top:7px; right:7px; z-index:8; background:rgba(239,68,68,.92); border:none; border-radius:50%; width:26px; height:26px; display:none; align-items:center; justify-content:center; cursor:pointer; color:#fff; padding:0; transition:background .2s; }
+    .slot-btn-remove:hover { background:#ef4444; }
+    .img-slot.has-image .slot-btn-remove { display:flex; }
+    .slot-btn-lightbox { position:absolute; top:7px; left:7px; z-index:8; background:rgba(0,0,0,.55); border:none; border-radius:50%; width:26px; height:26px; display:none; align-items:center; justify-content:center; cursor:pointer; color:#fff; padding:0; transition:background .2s; }
+    .img-slot.has-image .slot-btn-lightbox { display:flex; top:7px; left:7px; }
+    .img-slot.has-image .slot-existing-tag { top:38px; }
+    .img-slot.has-image .new-tag { top:38px; }
+    .slot-btn-lightbox:hover { background:rgba(0,0,0,.85); }
+    .slot-btn-crop { position:absolute; bottom:7px; right:7px; z-index:8; background:rgba(6,78,59,.88); border:none; border-radius:6px; padding:3px 9px; display:none; align-items:center; gap:4px; cursor:pointer; color:#fff; font-size:10px; font-weight:600; font-family:var(--font-body); transition:background .2s; }
+    .slot-btn-crop:hover { background:var(--primary); }
+    .img-slot.has-image .slot-btn-crop { display:flex; }
+    .slot-file-input { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:3; }
+    .img-slot.has-image .slot-file-input { pointer-events:auto; z-index:5; cursor:pointer; }
+    .img-slot.has-image .slot-btn-remove,
+    .img-slot.has-image .slot-btn-lightbox,
+    .img-slot.has-image .slot-btn-crop { z-index:9; }
+    .slot-change-hint { position:absolute; inset:0; z-index:4; background:rgba(6,78,59,.0); display:flex; align-items:center; justify-content:center; border-radius:calc(var(--radius) - 2px); pointer-events:none; transition:background .2s; }
+    .img-slot.has-image:hover .slot-change-hint { background:rgba(6,78,59,.35); }
+    .slot-change-hint span { color:#fff; font-size:.65rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; opacity:0; transition:opacity .2s; display:flex; flex-direction:column; align-items:center; gap:4px; }
+    .slot-change-hint .material-icons-outlined { font-size:1.4rem; }
+    .img-slot.has-image:hover .slot-change-hint span { opacity:1; }
+
+    /* ── Size Pills ── */
+    .size-pills { display:flex; flex-wrap:wrap; gap:7px; }
+    .size-pill { background:var(--input-bg-inner); border:1.5px solid var(--border); border-radius:var(--radius-sm); color:var(--text-sub); font-size:.8rem; font-weight:500; font-family:var(--font-body); padding:6px 20px; cursor:pointer; transition:all .15s; user-select:none; }
+    .size-pill:hover { border-color:var(--primary); color:var(--primary); }
+    .size-pill.active { background:var(--primary); border-color:var(--primary); color:#fff; font-weight:700; }
+
+    /* ── Color ── */
+    .color-input-wrap { display:flex; align-items:center; gap:.75rem; }
+    .color-swatch { width:40px; height:40px; border-radius:50%; border:2px solid var(--border); flex-shrink:0; position:relative; overflow:hidden; cursor:pointer; transition:border-color var(--tr); }
+    .color-swatch:hover { border-color:var(--primary); }
+    .color-swatch input[type="color"] { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; border:none; padding:0; }
+    .color-hint-text { font-size:.68rem; color:var(--text-muted); margin-top:.4rem; display:flex; align-items:center; gap:.25rem; }
+    .color-hint-text .material-icons-outlined { font-size:.85rem; }
+
+    /* ── Section Box ── */
+    .section-box { background:var(--section-bg); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:1.5rem; margin-bottom:1.75rem; }
+    [data-theme="dark"] .section-box { border-color:var(--border); }
+    .section-box-title { font-size:.65rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); margin:0 0 1.25rem; }
+    .inner-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; }
+
+    /* ── Toggle ── */
+    .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:.65rem .85rem; background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:1.25rem; }
+    .toggle-row-label { display:flex; align-items:center; gap:.5rem; font-size:.8rem; font-weight:500; }
+    .status-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
+    .toggle-switch { position:relative; display:inline-flex; align-items:center; cursor:pointer; }
+    .toggle-switch input { opacity:0; width:0; height:0; position:absolute; }
+    .toggle-track { width:44px; height:24px; background:var(--border); border-radius:99px; position:relative; transition:background var(--tr); }
+    .toggle-thumb { position:absolute; top:2px; left:2px; width:20px; height:20px; background:#fff; border-radius:50%; transition:transform var(--tr); box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .toggle-switch input:checked~.toggle-track { background:var(--primary); }
+    .toggle-switch input:checked~.toggle-track .toggle-thumb { transform:translateX(20px); }
+
+    /* ── SKU ── */
+    .sku-field-wrap { position:relative; }
+    .sku-lock-icon { position:absolute; right:.85rem; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:1rem; pointer-events:none; }
+
+    /* ── Danger zone ── */
+    .danger-zone { border:1px solid rgba(220,38,38,.25); border-radius:var(--radius-lg); padding:1.25rem 1.5rem; margin-bottom:1.75rem; background:rgba(254,226,226,.04); display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+    [data-theme="dark"] .danger-zone { border-color:rgba(239,68,68,.2); background:rgba(239,68,68,.04); }
+    .danger-zone-text h4 { font-size:.75rem; font-weight:700; color:#dc2626; margin:0 0 .2rem; display:flex; align-items:center; gap:.4rem; }
+    .danger-zone-text h4 .material-icons-outlined { font-size:.9rem; }
+    .danger-zone-text p { font-size:.7rem; color:var(--text-muted); margin:0; }
+    .btn-delete { background:transparent; border:1.5px solid #dc2626; color:#dc2626; border-radius:var(--radius-sm); padding:.5rem 1.2rem; font-size:.78rem; font-weight:700; font-family:var(--font-body); cursor:pointer; white-space:nowrap; transition:all .2s; display:flex; align-items:center; gap:.35rem; }
+    .btn-delete:hover { background:#dc2626; color:#fff; }
+    .btn-delete .material-icons-outlined { font-size:1rem; }
+
+    /* ── Action Row ── */
+    .action-row { display:flex; gap:1rem; padding:1.5rem 2rem; border-top:1px solid var(--border-light); background:var(--card-bg); }
+    .btn-save { flex:1; display:flex; align-items:center; justify-content:center; gap:.4rem; padding:1rem; background:var(--primary); color:#fff; border:none; border-radius:var(--radius); font-size:.875rem; font-weight:700; font-family:var(--font-body); letter-spacing:.03em; cursor:pointer; box-shadow:var(--shadow-btn); transition:opacity var(--tr),transform var(--tr); }
+    .btn-save:hover { opacity:.9; transform:translateY(-1px); }
+    .btn-save:active { transform:translateY(0); }
+    .btn-save:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+    .btn-discard { flex:1; padding:1rem; background:transparent; color:var(--text); border:2px solid var(--text); border-radius:var(--radius); font-size:.875rem; font-weight:700; font-family:var(--font-body); cursor:pointer; text-decoration:none; text-align:center; transition:background var(--tr),color var(--tr); display:flex; align-items:center; justify-content:center; gap:.4rem; }
+    .btn-discard:hover { background:var(--text); color:var(--bg); }
+
+    /* ── Theme FAB ── */
+    .theme-fab { position:fixed; bottom:1.5rem; right:1.5rem; width:46px; height:46px; border-radius:50%; background:var(--text); color:var(--bg); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(0,0,0,.2); z-index:500; transition:background var(--tr),color var(--tr),transform .2s; }
+    .theme-fab:hover { transform:scale(1.1); }
+    .icon-dark { display:block; } .icon-light { display:none; }
+    [data-theme="dark"] .icon-dark { display:none; }
+    [data-theme="dark"] .icon-light { display:block; }
+    .page-footer { margin-top:2.5rem; text-align:center; font-size:.72rem; color:var(--text-muted); }
+
+    /* ── Crop Modal ── */
+    .crop-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.82); z-index:9000; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+    .crop-overlay.active { display:flex; }
+    .crop-modal { background:var(--card-bg); border-radius:16px; width:min(680px,95vw); max-height:92vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,.4); }
+    .crop-modal-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+    .crop-modal-title { font-family:var(--font-display); font-size:1.1rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:8px; }
+    .crop-close-btn { background:var(--input-bg); border:1px solid var(--border); border-radius:8px; width:32px; height:32px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-muted); transition:background .2s; }
+    .crop-close-btn:hover { background:var(--border); color:var(--text); }
+    .crop-canvas-wrap { flex:1; overflow:hidden; padding:12px 16px; min-height:0; height:360px; display:flex; align-items:center; justify-content:center; background:var(--section-bg); }
+    .crop-canvas-wrap img { max-width:100%; max-height:100%; display:block; }
+    .crop-toolbar { padding:10px 16px; border-top:1px solid var(--border); display:flex; flex-wrap:wrap; align-items:center; gap:7px; flex-shrink:0; }
+    .crop-tool-btn { background:var(--input-bg); border:1px solid var(--border); border-radius:7px; color:var(--text-sub); font-size:.78rem; padding:5px 10px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; transition:all .15s; font-family:var(--font-body); }
+    .crop-tool-btn:hover { background:var(--border); color:var(--text); }
+    .crop-ratio-group { display:flex; gap:5px; }
+    .crop-ratio-btn { background:var(--input-bg); border:1px solid var(--border); border-radius:7px; color:var(--text-muted); font-size:.68rem; font-weight:600; padding:5px 9px; cursor:pointer; transition:all .15s; font-family:var(--font-body); }
+    .crop-ratio-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .crop-ratio-btn.active { background:var(--primary); border-color:var(--primary); color:#fff; }
+    .crop-slider-group { display:flex; align-items:center; gap:7px; flex:1; min-width:100px; }
+    .crop-slider-group label { font-size:.7rem; color:var(--text-muted); white-space:nowrap; }
+    .crop-slider { flex:1; accent-color:var(--primary); cursor:pointer; }
+    .crop-actions { margin-left:auto; display:flex; gap:8px; }
+    .btn-crop-cancel { background:var(--card-bg); border:1px solid var(--border); border-radius:8px; color:var(--text-muted); font-size:.8rem; font-weight:600; padding:8px 14px; cursor:pointer; font-family:var(--font-body); transition:all .15s; }
+    .btn-crop-cancel:hover { border-color:var(--primary); color:var(--primary); }
+    .btn-crop-apply { background:var(--primary); border:none; border-radius:8px; color:#fff; font-size:.8rem; font-weight:700; padding:8px 18px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-family:var(--font-body); transition:background .2s; }
+    .btn-crop-apply:hover { background:var(--primary-hover); }
+
+    /* ── Lightbox ── */
+    .lightbox-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.92); z-index:9100; align-items:center; justify-content:center; backdrop-filter:blur(6px); cursor:zoom-out; }
+    .lightbox-overlay.active { display:flex; }
+    .lightbox-img { max-width:90vw; max-height:90vh; border-radius:12px; object-fit:contain; cursor:default; animation:lbIn .2s ease; box-shadow:0 30px 80px rgba(0,0,0,.6); }
+    @keyframes lbIn { from{opacity:0;transform:scale(.92)} to{opacity:1;transform:scale(1)} }
+    .lightbox-close-btn { position:absolute; top:20px; right:20px; background:rgba(255,255,255,.12); border:none; border-radius:50%; width:40px; height:40px; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .2s; }
+    .lightbox-close-btn:hover { background:rgba(255,255,255,.25); }
+
+    /* ── Delete Modal ── */
+    .delete-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:9200; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+    .delete-overlay.active { display:flex; }
+    .delete-modal { background:var(--card-bg); border-radius:16px; width:min(420px,92vw); padding:2rem; box-shadow:0 25px 60px rgba(0,0,0,.4); animation:lbIn .2s ease; }
+    .delete-modal-icon { width:52px; height:52px; border-radius:50%; background:rgba(220,38,38,.1); border:1.5px solid rgba(220,38,38,.25); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem; }
+    .delete-modal-icon .material-icons-outlined { font-size:1.5rem; color:#dc2626; }
+    .delete-modal h3 { font-family:var(--font-display); font-size:1.1rem; font-weight:700; text-align:center; color:var(--text); margin:0 0 .5rem; }
+    .delete-modal p { font-size:.8rem; color:var(--text-muted); text-align:center; margin:0 0 1.5rem; line-height:1.6; }
+    .delete-modal-product-name { font-weight:700; color:var(--text); }
+    .delete-modal-actions { display:flex; gap:.75rem; }
+    .btn-delete-confirm { flex:1; background:#dc2626; border:none; border-radius:var(--radius-sm); color:#fff; font-size:.8rem; font-weight:700; font-family:var(--font-body); padding:.75rem; cursor:pointer; transition:background .2s; }
+    .btn-delete-confirm:hover { background:#b91c1c; }
+    .btn-delete-cancel { flex:1; background:var(--input-bg); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text); font-size:.8rem; font-weight:600; font-family:var(--font-body); padding:.75rem; cursor:pointer; transition:all .2s; }
+    .btn-delete-cancel:hover { border-color:var(--primary); color:var(--primary); }
+
+    @media(max-width:1100px) { .form-grid{flex-direction:column;gap:2rem} .form-col-right{border-left:none;padding-left:0;border-top:1px solid var(--border-light);padding-top:2rem} }
+    @media(max-width:860px)  { .sidebar{display:none} .main-content{padding:1.5rem} }
+    @media(max-width:640px)  { .main-content{padding:1rem} .inner-grid-2{grid-template-columns:1fr} .action-row{flex-direction:column;padding:1rem} .img-grid{grid-template-columns:1fr 1fr} .img-slot{height:160px} .page-heading-row{flex-direction:column;align-items:flex-start;gap:.5rem} }
+    @media(max-width:400px)  { .img-grid{grid-template-columns:1fr} .img-slot{height:180px} }
+  </style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sidebar-brand"><h1>Outfito</h1></div>
+  <nav class="sidebar-nav">
+    <span class="nav-section-label">Management</span>
+    <a class="nav-item" href="#"><span class="material-icons-outlined">grid_view</span>Dashboard</a>
+    <a class="nav-item" href="#"><span class="material-icons-outlined">shopping_bag</span>Orders</a>
+    <a class="nav-item active" href="{% url 'product_list' %}"><span class="material-icons-outlined">inventory_2</span>Products</a>
+    <a class="nav-item" href="{% url 'category_list' %}"><span class="material-icons-outlined">category</span>Categories</a>
+    <a class="nav-item" href="#"><span class="material-icons-outlined">confirmation_number</span>Coupons</a>
+    <a class="nav-item" href="#"><span class="material-icons-outlined">local_offer</span>Offers</a>
+    <a class="nav-item" href="#"><span class="material-icons-outlined">group</span>Customers</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <img class="user-avatar"
+           src="{% if request.user.profile_image %}{{ request.user.profile_image.url }}{% else %}https://ui-avatars.com/api/?name={{ request.user.get_full_name|urlencode }}&background=064e3b&color=fff{% endif %}"
+           alt="{{ request.user.get_full_name }}"/>
+      <div>
+        <div class="user-name">{{ request.user.get_full_name }}</div>
+        <div class="user-role">Administrator</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<main class="main-content">
+  <nav class="breadcrumb-nav">
+    <a href="{% url 'product_list' %}">Product Management</a>
+    <span class="sep">/</span>
+    <a href="{% url 'product_list' %}">Products</a>
+    <span class="sep">/</span>
+    <span class="current">Edit Product</span>
+  </nav>
+
+  <div class="page-heading-row">
+    <h2 class="page-heading">Edit Collection Piece</h2>
+    <span class="sku-badge">
+      <span class="material-icons-outlined">tag</span>
+      {{ variant.sku|default:"OUT-XXXXXXXX" }}
+    </span>
+  </div>
+
+  <div class="edit-banner">
+    <span class="material-icons-outlined">edit_note</span>
+    <div class="edit-banner-text">
+      You are editing <strong>{{ product.name|default:"this product" }}</strong>.
+      Changes will reflect live on the storefront once saved.
+      <span class="edit-banner-time"> · Last updated: {{ product.updated_at|date:"N j, Y · g:i A"|default:"—" }}</span>
+    </div>
+  </div>
+
+  {% if messages %}
+  <div class="django-messages">
+    {% for message in messages %}
+    <div class="msg-item msg-{{ message.tags }}">
+      <span class="material-icons-outlined" style="font-size:.95rem;">
+        {% if message.tags == 'success' %}check_circle{% else %}error{% endif %}
+      </span>
+      {{ message }}
+      <button type="button" class="msg-close" data-msg-close>
+        <span class="material-icons-outlined" style="font-size:.95rem;">close</span>
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="form-card">
+    <form id="productForm"
+          method="POST"
+          action="{% url 'edit_product' product.id %}"
+          enctype="multipart/form-data"
+          novalidate>
+      {% csrf_token %}
+
+      <div class="form-card-body">
+        <div class="form-grid">
+
+          <!-- ══ LEFT COLUMN ══ -->
+          <div class="form-col-left">
+
+            <!-- NAME -->
+            <div class="field-group">
+              <label class="field-label" for="id_name">
+                Product Name <span style="color:#dc2626">*</span>
+              </label>
+              {# Use old (POST repopulation) first, fall back to product.name #}
+              <input class="f-input" type="text" id="id_name" name="name"
+                     placeholder="e.g. Patch Work Edition"
+                     value="{{ product.name }}"
+
+                     maxlength="120"/>
+              <div class="char-count" id="nameCount">0 / 80</div>
+              <div class="field-hint" id="hint_name">
+                <span class="material-icons-outlined">error</span>
+                Name must be at least 3 characters
+              </div>
+            </div>
+
+            <!-- DESCRIPTION -->
+            <div class="field-group">
+              <label class="field-label" for="id_description">
+                Product Description
+                <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0;font-size:.68rem;"> — optional</span>
+              </label>
+              <textarea class="f-textarea" id="id_description" name="description"
+                        placeholder="Describe the fabric, fit, design details, styling tips…"
+                        maxlength="2000"
+                        rows="5">{% if old %}{{ old.description }}{% else %}{{ product.description|default:'' }}{% endif %}</textarea>
+              <div class="char-count" id="descCount">0 / 2000</div>
+              <div class="field-hint" id="hint_description">
+                <span class="material-icons-outlined">error</span>
+                Description must be under 2000 characters
+              </div>
+            </div>
+
+            <!-- IMAGES -->
+            <div class="field-group">
+              <label class="field-label">
+                Product Images
+                <span style="color:#dc2626;font-size:.72rem;text-transform:none;letter-spacing:0;font-weight:400;"> — cover required</span>
+              </label>
+              <p style="font-size:.7rem;color:var(--text-muted);margin-bottom:.7rem;">
+                Existing images are loaded · Hover to replace · 🔍 fullscreen · ✕ remove
+              </p>
+
+              <div class="img-grid">
+
+                <!-- ① COVER -->
+                <div class="img-slot {% if variant.image %}has-image{% endif %}" id="slot-0">
+                  <img class="slot-preview-img" id="prev-0"
+                       src="{% if variant.image %}{{ variant.image.url }}{% endif %}" alt=""/>
+                  <div class="slot-ph">
+                    <span class="material-icons-outlined">add_a_photo</span>
+                    <span>Cover *</span>
+                  </div>
+                  <span class="slot-req">*</span>
+                  <span class="slot-badge" id="badge-0">Cover</span>
+                  <span class="slot-kb" id="kb-0">{% if variant.image %}Existing{% endif %}</span>
+                  <span class="slot-existing-tag">Current</span>
+                  <span class="new-tag">New</span>
+                  <div class="slot-change-hint">
+                    <span><span class="material-icons-outlined">swap_horiz</span>Replace</span>
+                  </div>
+                  <button type="button" class="slot-btn-lightbox" data-slot="0">
+                    <span class="material-icons-outlined" style="font-size:13px;">zoom_in</span>
+                  </button>
+                  <button type="button" class="slot-btn-remove" data-slot="0">
+                    <span class="material-icons-outlined" style="font-size:13px;">close</span>
+                  </button>
+                  <button type="button" class="slot-btn-crop" data-slot="0">
+                    <span class="material-icons-outlined" style="font-size:11px;">crop</span> Crop
+                  </button>
+                  <input type="file" class="slot-file-input" id="file-0"
+                         name="image_cover" accept="image/*" data-slot="0"/>
+                  <input type="hidden" name="keep_image_cover"
+                         value="{% if variant.image %}1{% else %}0{% endif %}" id="keep-0"/>
+                </div>
+
+                <!-- ② SIDE -->
+                <div class="img-slot {% if product.image_side %}has-image{% endif %}" id="slot-1">
+                  <img class="slot-preview-img" id="prev-1"
+                       src="{% if product.image_side %}{{ product.image_side.url }}{% endif %}" alt=""/>
+                  <div class="slot-ph">
+                    <span class="material-icons-outlined">add</span>
+                    <span>Side View</span>
+                  </div>
+                  <span class="slot-badge" id="badge-1">Side</span>
+                  <span class="slot-kb" id="kb-1">{% if product.image_side %}Existing{% endif %}</span>
+                  <span class="slot-existing-tag">Current</span>
+                  <span class="new-tag">New</span>
+                  <div class="slot-change-hint">
+                    <span><span class="material-icons-outlined">swap_horiz</span>Replace</span>
+                  </div>
+                  <button type="button" class="slot-btn-lightbox" data-slot="1">
+                    <span class="material-icons-outlined" style="font-size:13px;">zoom_in</span>
+                  </button>
+                  <button type="button" class="slot-btn-remove" data-slot="1">
+                    <span class="material-icons-outlined" style="font-size:13px;">close</span>
+                  </button>
+                  <button type="button" class="slot-btn-crop" data-slot="1">
+                    <span class="material-icons-outlined" style="font-size:11px;">crop</span> Crop
+                  </button>
+                  <input type="file" class="slot-file-input" id="file-1"
+                         name="image_side" accept="image/*" data-slot="1"/>
+                  <input type="hidden" name="keep_image_side"
+                         value="{% if product.image_side %}1{% else %}0{% endif %}" id="keep-1"/>
+                </div>
+
+                <!-- ③ BACK -->
+                <div class="img-slot {% if product.image_back %}has-image{% endif %}" id="slot-2">
+                  <img class="slot-preview-img" id="prev-2"
+                       src="{% if product.image_back %}{{ product.image_back.url }}{% endif %}" alt=""/>
+                  <div class="slot-ph">
+                    <span class="material-icons-outlined">add</span>
+                    <span>Back View</span>
+                  </div>
+                  <span class="slot-badge" id="badge-2">Back</span>
+                  <span class="slot-kb" id="kb-2">{% if product.image_back %}Existing{% endif %}</span>
+                  <span class="slot-existing-tag">Current</span>
+                  <span class="new-tag">New</span>
+                  <div class="slot-change-hint">
+                    <span><span class="material-icons-outlined">swap_horiz</span>Replace</span>
+                  </div>
+                  <button type="button" class="slot-btn-lightbox" data-slot="2">
+                    <span class="material-icons-outlined" style="font-size:13px;">zoom_in</span>
+                  </button>
+                  <button type="button" class="slot-btn-remove" data-slot="2">
+                    <span class="material-icons-outlined" style="font-size:13px;">close</span>
+                  </button>
+                  <button type="button" class="slot-btn-crop" data-slot="2">
+                    <span class="material-icons-outlined" style="font-size:11px;">crop</span> Crop
+                  </button>
+                  <input type="file" class="slot-file-input" id="file-2"
+                         name="image_back" accept="image/*" data-slot="2"/>
+                  <input type="hidden" name="keep_image_back"
+                         value="{% if product.image_back %}1{% else %}0{% endif %}" id="keep-2"/>
+                </div>
+
+              </div><!-- /img-grid -->
+
+              <div class="field-hint" id="hint_cover" style="margin-top:.5rem;">
+                <span class="material-icons-outlined">error</span>Cover image is required
+              </div>
+            </div>
+
+            <!-- COLOR -->
+            <div class="field-group">
+              <label class="field-label" for="id_color">
+                Color <span style="color:#dc2626">*</span>
+              </label>
+              <div class="color-input-wrap">
+                <div class="color-swatch" id="colorSwatch">
+                  <input type="color" id="colorPicker" value="#3b82f6"/>
+                </div>
+                <input class="f-input" type="text" id="id_color" name="color"
+                       placeholder="e.g. Midnight Black, Silk Cream, Navy…"
+                       value="{% if old %}{{ old.color }}{% else %}{{ variant.color }}{% endif %}"/>
+              </div>
+              <p class="color-hint-text">
+                <span class="material-icons-outlined">info</span>
+                Pick via wheel or type a name — they sync automatically.
+              </p>
+              <div class="field-hint" id="hint_color">
+                <span class="material-icons-outlined">error</span>Color is required
+              </div>
+            </div>
+
+          </div><!-- /form-col-left -->
+
+          <!-- ══ RIGHT COLUMN ══ -->
+          <div class="form-col-right">
+
+            <div class="section-box">
+              <p class="section-box-title">Variant Details</p>
+
+              <!-- PRODUCT TYPE -->
+              <div class="field-group-inner">
+                <label class="field-label-inner" for="id_product_type">
+                  Product Type <span style="color:#dc2626">*</span>
+                </label>
+                {# Use old (POST) first, then variant.product_type #}
+                {% with current_type=old.product_type|default:product.product_type %}
+                <select class="f-select-inner" id="id_product_type" name="product_type">
+                  <option value="">Select type…</option>
+                  <option value="shirt"  {% if current_type == 'shirt'  %}selected{% endif %}>Shirt</option>
+                  <option value="pant"   {% if current_type == 'pant'   %}selected{% endif %}>Pant</option>
+                  <option value="tees"   {% if current_type == 'tees'   %}selected{% endif %}>Tees</option>
+                  <option value="shorts" {% if current_type == 'shorts' %}selected{% endif %}>Shorts</option>
+                </select>
+                {% endwith %}
+                <div class="field-hint" id="hint_type" style="margin-top:.4rem;">
+                  <span class="material-icons-outlined">error</span>Please select a product type
+                </div>
+              </div>
+
+              <!-- SIZE PILLS -->
+              <div class="field-group-inner">
+                <label class="field-label-inner">
+                  Size <span style="color:#dc2626">*</span>
+                </label>
+                {# Use old (POST) first, then variant.size #}
+                {% with current_size=old.size|default:variant.size %}
+                <input type="hidden" name="size" id="sizeValue" value="{{ current_size }}"/>
+                <div class="size-pills" id="sizePills">
+                  {% for sz in sizes %}
+                    <div class="size-pill {% if current_size == sz %}active{% endif %}"
+                         data-size="{{ sz }}">{{ sz }}</div>
+                  {% endfor %}
+                </div>
+                {% endwith %}
+                <div class="field-hint" id="hint_size" style="margin-top:.4rem;">
+                  <span class="material-icons-outlined">error</span>Please select a size
+                </div>
+              </div>
+
+              <!-- PRICE + STOCK -->
+              <div class="inner-grid-2 field-group-inner">
+                <div>
+                  <label class="field-label-inner" for="id_price">
+                    Price (₹) <span style="color:#dc2626">*</span>
+                  </label>
+                  <input class="f-input-inner" type="number" id="id_price" name="price"
+                         placeholder="0.00" step="0.01" min="0.01"
+                         value="{% if old %}{{ old.price }}{% else %}{{ variant.price }}{% endif %}"/>
+                  <div class="field-hint" id="hint_price">
+                    <span class="material-icons-outlined">error</span>Price must be greater than 0
+                  </div>
+                </div>
+                <div>
+                  <label class="field-label-inner" for="id_stock">
+                    Stock <span style="color:#dc2626">*</span>
+                  </label>
+                  <input class="f-input-inner" type="number" id="id_stock" name="stock"
+                         placeholder="0" min="0"
+                         value="{% if old %}{{ old.stock }}{% else %}{{ variant.stock }}{% endif %}"/>
+                  <div class="field-hint" id="hint_stock">
+                    <span class="material-icons-outlined">error</span>Stock cannot be negative
+                  </div>
+                </div>
+              </div>
+
+              <!-- ACTIVE TOGGLE -->
+              <div class="toggle-row">
+                <span class="toggle-row-label">
+                  <span class="status-dot"></span>Active / Listed
+                </span>
+                <label class="toggle-switch">
+                  {# On POST error: check if 'is_active' was 'on'. On GET: use variant.is_active #}
+                  <input type="checkbox" name="is_active" id="id_is_active"
+                         {% if old %}{% if old.is_active == 'on' %}checked{% endif %}{% else %}{% if variant.is_active %}checked{% endif %}{% endif %}/>
+                  <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </label>
+              </div>
+            </div>
+
+            <!-- CATEGORY -->
+            <div class="field-group">
+              <label class="field-label" for="id_category">
+                Category <span style="color:#dc2626">*</span>
+              </label>
+              {# Use old (POST) first, then product.category.id #}
+              {% with current_cat=old.category|default:product.category.id|stringformat:"s" %}
+              <select class="f-select" id="id_category" name="category">
+                <option value="">Select Category</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}"
+                  {% if current_cat == cat.id|stringformat:"s" %}selected{% endif %}>
+                  {{ cat.category_name }}
+                </option>
+                {% endfor %}
+              </select>
+              {% endwith %}
+              <div class="field-hint" id="hint_category">
+                <span class="material-icons-outlined">error</span>Please select a category
+              </div>
+            </div>
+
+            <!-- SKU (read-only) -->
+            <div class="field-group">
+              <label class="field-label">SKU</label>
+              <div class="sku-field-wrap">
+                <input class="f-input-inner" type="text" id="skuDisplay"
+                       value="{{ variant.sku|default:'OUT-XXXXXXXX' }}" readonly
+                       style="color:var(--text-muted);cursor:default;background:var(--section-bg);padding-right:2.5rem;"/>
+                <span class="sku-lock-icon material-icons-outlined">lock</span>
+              </div>
+              <p style="font-size:.68rem;color:var(--text-muted);margin-top:.35rem;display:flex;align-items:center;gap:.25rem;">
+                <span class="material-icons-outlined" style="font-size:.85rem;color:var(--accent);">info</span>
+                SKU is auto-generated and cannot be changed.
+              </p>
+            </div>
+
+            <!-- DANGER ZONE -->
+            <div class="danger-zone">
+              <div class="danger-zone-text">
+                <h4><span class="material-icons-outlined">warning_amber</span>Danger Zone</h4>
+                <p>Deleting this product is permanent and cannot be undone.</p>
+              </div>
+              <button type="button" class="btn-delete" id="btnDeleteTrigger">
+                <span class="material-icons-outlined">delete_outline</span>
+                Delete Product
+              </button>
+            </div>
+
+          </div><!-- /form-col-right -->
+        </div>
+      </div>
+
+      <!-- ACTION ROW -->
+      <div class="action-row">
+        <button type="submit" class="btn-save" id="btnSave">
+          <span class="material-icons-outlined">save</span>Save Changes
+        </button>
+        <a class="btn-discard" href="{% url 'product_list' %}">
+          <span class="material-icons-outlined">arrow_back</span>Back to Products
+        </a>
+      </div>
+
+    </form>
+  </div>
+
+  <p class="page-footer">© 2024 Outfito Digital Atelier. All Rights Reserved.</p>
+</main>
+
+<button class="theme-fab" id="themeFab" title="Toggle theme">
+  <span class="material-icons-outlined icon-dark">dark_mode</span>
+  <span class="material-icons-outlined icon-light">light_mode</span>
+</button>
+
+<!-- ══ CROP MODAL ══ -->
+<div class="crop-overlay" id="cropOverlay">
+  <div class="crop-modal">
+    <div class="crop-modal-header">
+      <div class="crop-modal-title">
+        <span class="material-icons-outlined">crop</span>
+        Crop & Resize — <span id="cropSlotLabel" style="font-size:.85rem;font-weight:500;color:var(--text-muted);"></span>
+      </div>
+      <button type="button" class="crop-close-btn" id="cropCloseBtn">
+        <span class="material-icons-outlined">close</span>
+      </button>
+    </div>
+    <div class="crop-canvas-wrap" id="cropCanvasWrap">
+      <img id="cropImg" src="" alt="Crop target" style="max-width:100%;max-height:100%;display:block;"/>
+    </div>
+    <div class="crop-toolbar">
+      <div class="crop-ratio-group">
+        <button type="button" class="crop-ratio-btn active" data-ratio="NaN">Free</button>
+        <button type="button" class="crop-ratio-btn" data-ratio="1">1:1</button>
+        <button type="button" class="crop-ratio-btn" data-ratio="1.3333">4:3</button>
+        <button type="button" class="crop-ratio-btn" data-ratio="1.7778">16:9</button>
+      </div>
+      <button type="button" class="crop-tool-btn" data-rotate="-90">
+        <span class="material-icons-outlined" style="font-size:15px;">rotate_left</span>
+      </button>
+      <button type="button" class="crop-tool-btn" data-rotate="90">
+        <span class="material-icons-outlined" style="font-size:15px;">rotate_right</span>
+      </button>
+      <button type="button" class="crop-tool-btn" data-flip="x">
+        <span class="material-icons-outlined" style="font-size:15px;">flip</span>
+      </button>
+      <button type="button" class="crop-tool-btn" data-flip="y" style="transform:rotate(90deg)">
+        <span class="material-icons-outlined" style="font-size:15px;">flip</span>
+      </button>
+      <div class="crop-slider-group">
+        <label><span class="material-icons-outlined" style="font-size:14px;">zoom_in</span></label>
+        <input type="range" class="crop-slider" id="zoomSlider" min="0" max="3" step="0.01" value="0"/>
+      </div>
+      <div class="crop-actions">
+        <button type="button" class="btn-crop-cancel" id="cropCancelBtn">Cancel</button>
+        <button type="button" class="btn-crop-apply" id="cropApplyBtn">
+          <span class="material-icons-outlined" style="font-size:14px;">check</span> Apply
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LIGHTBOX ══ -->
+<div class="lightbox-overlay" id="lightboxOverlay">
+  <button type="button" class="lightbox-close-btn" id="lightboxCloseBtn">
+    <span class="material-icons-outlined">close</span>
+  </button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt=""
+       onclick="event.stopPropagation()"/>
+</div>
+
+<!-- ══ DELETE CONFIRM MODAL ══ -->
+<div class="delete-overlay" id="deleteOverlay">
+  <div class="delete-modal">
+    <div class="delete-modal-icon">
+      <span class="material-icons-outlined">delete_forever</span>
+    </div>
+    <h3>Delete Product?</h3>
+    <p>
+      You are about to permanently delete
+      <span class="delete-modal-product-name">{{ product.name|default:"this product" }}</span>.
+      This action <strong>cannot be undone</strong> and will remove all associated data.
+    </p>
+    <div class="delete-modal-actions">
+      <button type="button" class="btn-delete-cancel" id="btnDeleteCancel">Keep Product</button>
+      <form method="POST" action="{% url 'delete_product' product.id %}" style="flex:1;display:flex;">
+        {% csrf_token %}
+        <button type="submit" class="btn-delete-confirm" style="width:100%;">Yes, Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+<script>
+const MAX_FILE_BYTES = 5 * 1024 * 1024;
+const SLOT_LABELS    = ['Cover', 'Side View', 'Back View'];
+
+/* Track which slots have existing server images */
+const state = [
+  { originalSrc:'', croppedBlob:null, flipX:1, flipY:1, isExisting: {% if variant.image %}true{% else %}false{% endif %} },
+  { originalSrc:'', croppedBlob:null, flipX:1, flipY:1, isExisting: {% if product.image_side %}true{% else %}false{% endif %} },
+  { originalSrc:'', croppedBlob:null, flipX:1, flipY:1, isExisting: {% if product.image_back %}true{% else %}false{% endif %} },
+];
+
+let activeCropSlot = -1;
+let cropperInst    = null;
+
+const $  = id  => document.getElementById(id);
+const $$ = sel => document.querySelectorAll(sel);
+
+const showHint = id => $(id)?.classList.add('show');
+const hideHint = id => $(id)?.classList.remove('show');
+const markErr  = el => el?.classList.add('err');
+const clearErr = el => el?.classList.remove('err');
+
+function toast(icon, msg) {
+  Swal.fire({
+    icon, title: msg, toast: true, position: 'top-end',
+    timer: 2600, showConfirmButton: false,
+    background: document.documentElement.dataset.theme === 'dark' ? '#1e293b' : '#fff',
+    color:      document.documentElement.dataset.theme === 'dark' ? '#f1f5f9' : '#1e293b',
+  });
+}
+
+/* ── Slot helpers ── */
+function slotSetPreview(idx, src, isNew) {
+  $(`prev-${idx}`).src = src;
+  $(`slot-${idx}`).classList.add('has-image');
+  $(`slot-${idx}`).classList.remove('err');
+  if (idx === 0) hideHint('hint_cover');
+  if (isNew) {
+    $(`slot-${idx}`).classList.add('is-new');
+    $(`slot-${idx}`).classList.remove('has-existing');
+    $(`kb-${idx}`).textContent = 'New';
+    $(`keep-${idx}`).value = '0';
+  } else {
+    $(`slot-${idx}`).classList.remove('is-new');
+    $(`keep-${idx}`).value = '1';
+  }
+}
+
+function slotClear(idx) {
+  $(`prev-${idx}`).src = '';
+  $(`slot-${idx}`).classList.remove('has-image', 'is-new');
+  $(`file-${idx}`).value = '';
+  $(`kb-${idx}`).textContent = '';
+  $(`keep-${idx}`).value = '0';
+  Object.assign(state[idx], { originalSrc:'', croppedBlob:null, flipX:1, flipY:1, isExisting:false });
+}
+
+function handleFileSelected(input, idx) {
+  const file = input.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { toast('warning','Please select a valid image file.'); input.value=''; return; }
+  if (file.size > MAX_FILE_BYTES)      { toast('warning','Image must be under 5 MB.');          input.value=''; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    Object.assign(state[idx], { originalSrc: e.target.result, croppedBlob:null, flipX:1, flipY:1 });
+    slotSetPreview(idx, e.target.result, true);
+    $(`kb-${idx}`).textContent = (file.size / 1024).toFixed(0) + ' KB (new)';
+    openCrop(idx);
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ── Crop ── */
+function openCrop(idx) {
+  if (!state[idx].originalSrc) {
+    /* For existing server images: use the already-rendered img src */
+    const existingSrc = $(`prev-${idx}`).src;
+    if (!existingSrc || existingSrc === window.location.href) return;
+    state[idx].originalSrc = existingSrc;
+  }
+  state[idx].flipX = 1; state[idx].flipY = 1;
+  activeCropSlot = idx;
+  $('cropSlotLabel').textContent = SLOT_LABELS[idx] || '';
+  if (cropperInst) { cropperInst.destroy(); cropperInst = null; }
+  $$('.crop-ratio-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.crop-ratio-btn[data-ratio="NaN"]').classList.add('active');
+  $('zoomSlider').value = 0;
+  $('cropOverlay').classList.add('active');
+  const cropImg = $('cropImg');
+  cropImg.onload = () => {
+    if (activeCropSlot !== idx) return;
+    cropperInst = new Cropper(cropImg, {
+      viewMode:1, autoCropArea:0.85, responsive:true,
+      background:false, checkOrientation:false, toggleDragModeOnDblclick:false,
+      zoom(e) { $('zoomSlider').value = Math.max(0, Math.min(3, (e.detail.ratio - 1).toFixed(2))); },
+    });
+  };
+  if (cropImg.src === state[idx].originalSrc) cropImg.onload();
+  else cropImg.src = state[idx].originalSrc;
+}
+
+function closeCrop() {
+  $('cropOverlay').classList.remove('active');
+  if (cropperInst) { cropperInst.destroy(); cropperInst = null; }
+  activeCropSlot = -1;
+}
+
+function applyCrop() {
+  if (!cropperInst || activeCropSlot < 0) { toast('warning','No crop active.'); return; }
+  const idx = activeCropSlot;
+  const canvas = cropperInst.getCroppedCanvas({ maxWidth:1200, maxHeight:1200, imageSmoothingQuality:'high' });
+  if (!canvas) { toast('error','Could not generate cropped image.'); return; }
+  canvas.toBlob(blob => {
+    if (!blob) { toast('error','Crop failed.'); return; }
+    state[idx].croppedBlob = blob;
+    slotSetPreview(idx, URL.createObjectURL(blob), true);
+    const r = new FileReader();
+    r.onload = e => { state[idx].originalSrc = e.target.result; };
+    r.readAsDataURL(blob);
+    try {
+      const dt = new DataTransfer();
+      const names = ['image_cover.jpg','image_side.jpg','image_back.jpg'];
+      dt.items.add(new File([blob], names[idx], { type:'image/jpeg' }));
+      $(`file-${idx}`).files = dt.files;
+    } catch(_) {}
+    $(`kb-${idx}`).textContent = (blob.size / 1024).toFixed(0) + ' KB (cropped)';
+    closeCrop();
+  }, 'image/jpeg', 0.92);
+}
+
+/* ── Lightbox ── */
+function openLightbox(idx) {
+  const src = $(`prev-${idx}`).src;
+  if (!src || src === window.location.href) return;
+  $('lightboxImg').src = src;
+  $('lightboxOverlay').classList.add('active');
+}
+function closeLightbox() { $('lightboxOverlay').classList.remove('active'); }
+
+/* ── Color sync ── */
+const COLOR_MAP = {
+  black:'#000000', white:'#ffffff', red:'#ef4444', blue:'#3b82f6',
+  green:'#22c55e', yellow:'#eab308', orange:'#f97316', purple:'#a855f7',
+  pink:'#ec4899', gray:'#6b7280', grey:'#6b7280', brown:'#92400e',
+  navy:'#1e3a5f', gold:'#fbbf24', silver:'#94a3b8', cyan:'#06b6d4',
+  cream:'#f5f0e8', beige:'#f5f0e8', maroon:'#7f1d1d', olive:'#4d7c0f',
+  teal:'#0d9488', indigo:'#4f46e5', rose:'#f43f5e', amber:'#f59e0b',
+  lime:'#84cc16', emerald:'#10b981', violet:'#7c3aed', fuchsia:'#d946ef',
+  sky:'#0ea5e9', slate:'#64748b', zinc:'#71717a', stone:'#78716c',
+  coral:'#f87171', peach:'#fbbf24', lavender:'#a78bfa', mint:'#6ee7b7',
+  charcoal:'#374151', offwhite:'#f9fafb', ivory:'#fefce8', khaki:'#a3a35a',
+};
+function hexToRgb(hex) {
+  const h = hex.replace('#','');
+  const n = parseInt(h.length===3 ? h.split('').map(c=>c+c).join('') : h, 16);
+  return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 };
+}
+function colorDist(hex1, hex2) {
+  const a = hexToRgb(hex1), b = hexToRgb(hex2);
+  return Math.sqrt((a.r-b.r)**2 + (a.g-b.g)**2 + (a.b-b.b)**2);
+}
+function nearestColorName(hex) {
+  let best='', bestDist=Infinity;
+  for (const [name,val] of Object.entries(COLOR_MAP)) {
+    if (name==='grey') continue;
+    const d = colorDist(hex, val);
+    if (d < bestDist) { bestDist=d; best=name; }
+  }
+  return best ? best[0].toUpperCase() + best.slice(1) : 'Custom';
+}
+function swatchFromPicker(hex) {
+  $('colorSwatch').style.background = hex;
+  const exact = Object.entries(COLOR_MAP).find(([k,v]) => k!=='grey' && v.toLowerCase()===hex.toLowerCase());
+  $('id_color').value = exact ? exact[0][0].toUpperCase()+exact[0].slice(1) : nearestColorName(hex);
+}
+function swatchFromText(val) {
+  const k = val.trim().toLowerCase();
+  if (COLOR_MAP[k]) {
+    $('colorPicker').value            = COLOR_MAP[k];
+    $('colorSwatch').style.background = COLOR_MAP[k];
+  } else if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(val.trim())) {
+    $('colorPicker').value            = val.trim();
+    $('colorSwatch').style.background = val.trim();
+    setTimeout(() => { $('id_color').value = nearestColorName(val.trim()); }, 0);
+  } else if (val.trim()) {
+    /* Unknown name — at least update swatch to a neutral */
+    $('colorSwatch').style.background = '#94a3b8';
+  }
+  if (val.trim()) { clearErr($('id_color')); hideHint('hint_color'); }
+}
+
+/* ── Size pills ── */
+function selectSize(pill) {
+  $$('#sizePills .size-pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  $('sizeValue').value = pill.dataset.size;
+  hideHint('hint_size');
+}
+
+/* ── Char counter ── */
+function updateCharCount(el, cid, max) {
+  const len = el.value.length;
+  const c = $(cid);
+  c.textContent = `${len} / ${max}`;
+  c.className = 'char-count' + (len>=max ? ' over' : len>max*0.9 ? ' warn' : '');
+}
+
+/* ── Validation ── */
+function validateForm() {
+  let ok = true;
+
+  const name = $('id_name');
+  if (!name.value.trim() || name.value.trim().length < 3) { markErr(name); showHint('hint_name'); ok=false; }
+  else { clearErr(name); hideHint('hint_name'); }
+
+  const desc = $('id_description');
+  if (desc.value.length > 2000) { showHint('hint_description'); ok=false; }
+  else { hideHint('hint_description'); }
+
+  const cat = $('id_category');
+  if (!cat.value) { markErr(cat); showHint('hint_category'); ok=false; }
+  else { clearErr(cat); hideHint('hint_category'); }
+
+  const pt = $('id_product_type');
+  if (!pt.value) { showHint('hint_type'); ok=false; }
+  else { hideHint('hint_type'); }
+
+  if (!$('sizeValue').value) { showHint('hint_size'); ok=false; }
+  else { hideHint('hint_size'); }
+
+  const color = $('id_color');
+  if (!color.value.trim()) { markErr(color); showHint('hint_color'); ok=false; }
+  else { clearErr(color); hideHint('hint_color'); }
+
+  const price = $('id_price');
+  if (!price.value || parseFloat(price.value) <= 0) { markErr(price); showHint('hint_price'); ok=false; }
+  else { clearErr(price); hideHint('hint_price'); }
+
+  const stock = $('id_stock');
+  if (stock.value==='' || parseInt(stock.value) < 0) { markErr(stock); showHint('hint_stock'); ok=false; }
+  else { clearErr(stock); hideHint('hint_stock'); }
+
+  /* Cover: ok if existing kept OR new file uploaded OR cropped blob exists */
+  const hasExistingCover = $('keep-0').value === '1';
+  const hasNewCover      = $('file-0').files && $('file-0').files.length > 0;
+  const hasCroppedCover  = !!state[0].croppedBlob;
+  if (!hasExistingCover && !hasNewCover && !hasCroppedCover) {
+    $('slot-0').classList.add('err'); showHint('hint_cover'); ok=false;
+  } else { $('slot-0').classList.remove('err'); hideHint('hint_cover'); }
+
+  return ok;
+}
+
+/* ══ INIT ══ */
+document.addEventListener('DOMContentLoaded', () => {
+
+  /* Restore theme */
+  const savedTheme = localStorage.getItem('outfito-theme');
+  if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+
+  /* Char counters */
+  const nameEl = $('id_name');
+  nameEl.addEventListener('input', () => updateCharCount(nameEl,'nameCount',80));
+  updateCharCount(nameEl,'nameCount',80);
+
+  const descEl = $('id_description');
+  descEl.addEventListener('input', () => updateCharCount(descEl,'descCount',2000));
+  updateCharCount(descEl,'descCount',2000);
+
+  /* File inputs */
+  $$('.slot-file-input').forEach(i => {
+    i.addEventListener('change', function() { handleFileSelected(this, parseInt(this.dataset.slot)); });
+  });
+
+  /* Remove / lightbox / crop buttons */
+  $$('.slot-btn-remove').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); slotClear(parseInt(b.dataset.slot)); });
+  });
+  $$('.slot-btn-lightbox').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); openLightbox(parseInt(b.dataset.slot)); });
+  });
+  $$('.slot-btn-crop').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); openCrop(parseInt(b.dataset.slot)); });
+  });
+
+  /* Crop modal controls */
+  $('cropCloseBtn').addEventListener('click', closeCrop);
+  $('cropCancelBtn').addEventListener('click', closeCrop);
+  $('cropApplyBtn').addEventListener('click', applyCrop);
+  $('zoomSlider').addEventListener('input', function() {
+    if (cropperInst) cropperInst.zoomTo(1 + parseFloat(this.value));
+  });
+  $$('.crop-ratio-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('.crop-ratio-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (cropperInst) { const r=parseFloat(btn.dataset.ratio); cropperInst.setAspectRatio(isNaN(r)?NaN:r); }
+    });
+  });
+  $$('[data-rotate]').forEach(b => {
+    b.addEventListener('click', () => { if (cropperInst) cropperInst.rotate(parseInt(b.dataset.rotate)); });
+  });
+  $$('[data-flip]').forEach(b => {
+    b.addEventListener('click', () => {
+      if (!cropperInst || activeCropSlot < 0) return;
+      const s = state[activeCropSlot];
+      if (b.dataset.flip==='x') { s.flipX*=-1; cropperInst.scaleX(s.flipX); }
+      else                       { s.flipY*=-1; cropperInst.scaleY(s.flipY); }
+    });
+  });
+
+  /* Lightbox */
+  $('lightboxCloseBtn').addEventListener('click', closeLightbox);
+  $('lightboxOverlay').addEventListener('click', e => { if (e.target===$('lightboxOverlay')) closeLightbox(); });
+
+  /* Color sync — init swatch from existing color value */
+  const colorVal = $('id_color').value.trim();
+  if (colorVal) {
+    swatchFromText(colorVal);
+  } else {
+    $('colorSwatch').style.background = $('colorPicker').value;
+  }
+  $('colorPicker').addEventListener('input', function() { swatchFromPicker(this.value); });
+  $('id_color').addEventListener('input', function() { swatchFromText(this.value); });
+
+  /* Product type */
+  $('id_product_type').addEventListener('change', function() {
+    if (this.value) hideHint('hint_type');
+  });
+
+  /* Size pills — ensure hidden input matches active pill */
+  $$('#sizePills .size-pill').forEach(p => p.addEventListener('click', () => selectSize(p)));
+  const activePill = document.querySelector('#sizePills .size-pill.active');
+  if (activePill) $('sizeValue').value = activePill.dataset.size;
+
+  /* Category */
+  $('id_category').addEventListener('change', function() {
+    if (this.value) { clearErr(this); hideHint('hint_category'); }
+  });
+
+  /* Messages: close button + auto-dismiss */
+  $$('[data-msg-close]').forEach(b => { b.addEventListener('click', () => b.closest('.msg-item')?.remove()); });
+  setTimeout(() => {
+    $$('.msg-item').forEach(el => {
+      el.style.transition='opacity .4s'; el.style.opacity='0';
+      setTimeout(()=>el.remove(),400);
+    });
+  }, 4000);
+
+  /* Delete modal */
+  $('btnDeleteTrigger').addEventListener('click', () => $('deleteOverlay').classList.add('active'));
+  $('btnDeleteCancel').addEventListener('click',  () => $('deleteOverlay').classList.remove('active'));
+  $('deleteOverlay').addEventListener('click', e => {
+    if (e.target===$('deleteOverlay')) $('deleteOverlay').classList.remove('active');
+  });
+
+  /* Theme toggle */
+  $('themeFab').addEventListener('click', () => {
+    const root = document.documentElement;
+    root.dataset.theme = root.dataset.theme==='dark' ? 'light' : 'dark';
+    localStorage.setItem('outfito-theme', root.dataset.theme);
+  });
+
+  /* Live error clearing */
+  nameEl.addEventListener('input', function() {
+    if(this.value.trim().length>=3){clearErr(this);hideHint('hint_name');}
+  });
+  $('id_price').addEventListener('input', function() {
+    if(parseFloat(this.value)>0){clearErr(this);hideHint('hint_price');}
+  });
+  $('id_stock').addEventListener('input', function() {
+    if(parseInt(this.value)>=0){clearErr(this);hideHint('hint_stock');}
+  });
+
+  /* Form submit */
+  $('productForm').addEventListener('submit', function(e) {
+    if (!validateForm()) {
+      e.preventDefault();
+      const first = document.querySelector('.field-hint.show');
+      if (first) first.scrollIntoView({ behavior:'smooth', block:'center' });
+      return;
+    }
+    const btn = $('btnSave');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-icons-outlined" style="animation:spin 1s linear infinite;display:inline-block">sync</span> Saving…';
+  });
+
+  /* Escape closes all modals */
+  document.addEventListener('keydown', e => {
+    if (e.key==='Escape') {
+      closeLightbox();
+      closeCrop();
+      $('deleteOverlay').classList.remove('active');
+    }
+  });
+
+});
+</script>
+</body>
+</html>

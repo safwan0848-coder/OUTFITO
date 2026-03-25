@@ -1,0 +1,342 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Collections | Outfito</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:           #0a0f1a;
+      --bg-card:      #111827;
+      --bg-soft:      #0d1424;
+      --bg-input:     #161f2e;
+      --border:       rgba(255,255,255,0.07);
+      --border-hover: rgba(255,255,255,0.14);
+      --text:         #f8fafc;
+      --text-muted:   #94a3b8;
+      --text-sub:     #4b5563;
+      --primary:      #7c3aed;
+      --accent:       #10b981;
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body:    'DM Sans', sans-serif;
+      --radius:       0.5rem;
+      --radius-lg:    0.875rem;
+      --radius-xl:    1.5rem;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: var(--font-body); font-size: 14px;
+      line-height: 1.6; min-height: 100vh;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+    button { font-family: var(--font-body); cursor: pointer; }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      height: 60px; background: var(--bg-soft);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 2.5rem; gap: 2rem;
+      position: sticky; top: 0; z-index: 300;
+      backdrop-filter: blur(16px);
+    }
+    .navbar-brand { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: #fff; letter-spacing: -.01em; flex-shrink: 0; text-shadow: 0 0 40px rgba(124,58,237,.4); }
+    .navbar-links { display: flex; gap: 1.75rem; flex: 1; }
+    .navbar-links a { color: var(--text-muted); font-size: .82rem; font-weight: 500; transition: color .2s; }
+    .navbar-links a:hover, .navbar-links a.active { color: #fff; }
+    .navbar-search { display: flex; align-items: center; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 0 .8rem; gap: .35rem; width: 210px; transition: border-color .2s; }
+    .navbar-search:focus-within { border-color: var(--border-hover); }
+    .navbar-search input { background: none; border: none; outline: none; color: var(--text); font-size: .8rem; width: 100%; padding: .4rem 0; }
+    .navbar-search input::placeholder { color: var(--text-sub); }
+    .navbar-search .material-icons-outlined { font-size: .95rem; color: var(--text-sub); }
+    .navbar-icons { display: flex; align-items: center; gap: .35rem; margin-left: auto; }
+    .nav-icon-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: all .2s; position: relative; }
+    .nav-icon-btn:hover { background: rgba(255,255,255,.08); color: #fff; border-color: var(--border-hover); }
+    .nav-icon-btn .material-icons-outlined { font-size: 1.05rem; }
+    .cart-badge { position: absolute; top: -3px; right: -3px; background: var(--primary); color: #fff; font-size: 9px; font-weight: 700; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--bg-soft); }
+
+    /* ── HERO SECTION ── */
+    .hero {
+      position: relative; overflow: hidden;
+      padding: 5rem 2.5rem 4rem;
+      text-align: center;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% -10%, rgba(124,58,237,0.18) 0%, transparent 70%),
+        var(--bg);
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(124,58,237,.06) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(16,185,129,.04) 0%, transparent 40%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-size: .65rem; font-weight: 700; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--primary);
+      margin-bottom: 1rem; display: block;
+      animation: fadeUp .6s ease both;
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700; line-height: 1.05;
+      color: var(--text); letter-spacing: -.02em;
+      margin-bottom: 1.25rem;
+      animation: fadeUp .6s .1s ease both;
+    }
+    .hero-title em { font-style: italic; color: rgba(248,250,252,.65); }
+    .hero-sub {
+      font-size: .9rem; color: var(--text-muted);
+      max-width: 480px; margin: 0 auto;
+      line-height: 1.8;
+      animation: fadeUp .6s .2s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── CATEGORIES GRID ── */
+    .categories-section {
+      max-width: 1200px; margin: 0 auto;
+      padding: 3rem 2.5rem 5rem;
+    }
+    .cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);  /* 🔥 3 cards */
+  gap: 1.25rem;
+}1.25rem;
+    
+    /* First item spans full width for drama */
+.cat-card:first-child {
+    grid-column: 1 / -1;
+    aspect-ratio: 21 / 9;   /* 🔥 cinematic wide */
+}
+
+.cat-card {
+  position: relative;
+  aspect-ratio: 3 / 4;   /* 🔥 THIS IS THE KEY FIX */
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  cursor: pointer;
+  display: block;
+  border: 1px solid var(--border);
+  transition: transform .3s ease, border-color .3s ease;
+}
+    .cat-card:nth-child(1) { animation-delay: .05s; }
+    .cat-card:nth-child(2) { animation-delay: .1s; }
+    .cat-card:nth-child(3) { animation-delay: .15s; }
+    .cat-card:nth-child(4) { animation-delay: .2s; }
+    .cat-card:nth-child(5) { animation-delay: .25s; }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .cat-card:hover { transform: translateY(-6px); border-color: rgba(124,58,237,.4); }
+
+    /* Background image layer */
+    .cat-bg {
+      position: absolute; inset: 0;
+      background: var(--bg-card);
+      transition: transform .5s cubic-bezier(.25,.46,.45,.94);
+    }
+    .cat-card:hover .cat-bg { transform: scale(1.06); }
+.cat-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;  /* 🔥 important */
+}
+    .cat-card:hover .cat-bg img { opacity: .7; }
+
+    /* Gradient overlay */
+    .cat-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(10,15,26,0.92) 0%,
+        rgba(10,15,26,0.5) 40%,
+        rgba(10,15,26,0.1) 100%
+      );
+    }
+    /* No-image gradient fallback */
+    .cat-bg-gradient {
+      position: absolute; inset: 0;
+    }
+
+    /* Content */
+    .cat-content {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      padding: 1.75rem 2rem;
+      z-index: 2;
+    }
+    .cat-eyebrow {
+      font-size: .58rem; font-weight: 700; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: .4rem; opacity: .85;
+    }
+    .cat-name {
+      font-family: var(--font-display);
+      font-size: 2rem; font-weight: 700;
+      color: var(--text); line-height: 1.1;
+      letter-spacing: -.01em;
+      transform: translateY(4px);
+      transition: transform .3s ease;
+    }
+
+    .cat-card:hover .cat-name { transform: translateY(0); }
+
+    .cat-meta {
+      display: flex; align-items: center; gap: .6rem;
+      margin-top: .6rem;
+      transform: translateY(8px); opacity: 0;
+      transition: transform .3s .05s ease, opacity .3s .05s ease;
+    }
+    .cat-card:hover .cat-meta { transform: translateY(0); opacity: 1; }
+    .cat-count {
+      font-size: .72rem; color: var(--text-muted);
+    }
+    .cat-arrow {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(124,58,237,.25); border: 1px solid rgba(124,58,237,.4);
+      display: flex; align-items: center; justify-content: center;
+      margin-left: auto;
+    }
+    .cat-arrow .material-icons-outlined { font-size: .85rem; color: #a78bfa; }
+
+    /* Top-right badge */
+    .cat-badge {
+      position: absolute; top: 1.1rem; right: 1.1rem; z-index: 3;
+      background: rgba(10,15,26,.7); backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      font-size: .62rem; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--text-muted);
+      padding: 4px 10px; border-radius: 99px;
+    }
+
+    /* Gradient-only cards (no image) */
+    .grad-1 { background: linear-gradient(135deg, #1a0a3d 0%, #0a0f1a 100%); }
+    .grad-2 { background: linear-gradient(135deg, #0a1f1a 0%, #0a0f1a 100%); }
+    .grad-3 { background: linear-gradient(135deg, #1f0a0a 0%, #0a0f1a 100%); }
+    .grad-4 { background: linear-gradient(135deg, #0a1020 0%, #1a1a2e 100%); }
+    .grad-5 { background: linear-gradient(135deg, #1a1500 0%, #0a0f1a 100%); }
+
+    /* ── FOOTER ── */
+    .footer { background: var(--bg-soft); border-top: 1px solid var(--border); padding: 1.5rem 2.5rem; text-align: center; font-size: .72rem; color: var(--text-sub); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .cat-grid { grid-template-columns: 1fr; }
+
+      .cat-card { height: 180px; }
+      .categories-section { padding: 2rem 1.25rem 3rem; }
+      .hero { padding: 3rem 1.25rem 2.5rem; }
+      .navbar-search, .navbar-links { display: none; }
+      .navbar { padding: 0 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="/" class="navbar-brand">Outfito</a>
+  <div class="navbar-links">
+    <a href="/">Home</a>
+    <a href="{% url 'categories_page' %}" class="active">Collections</a>
+    <a href="#">New Arrivals</a>
+    <a href="#">About</a>
+  </div>
+  <div class="navbar-search">
+    <span class="material-icons-outlined">search</span>
+    <input type="text" placeholder="Search outfits…"/>
+  </div>
+  <div class="navbar-icons">
+    <button class="nav-icon-btn" title="Wishlist">
+      <span class="material-icons-outlined">favorite_border</span>
+    </button>
+    <a href="{% url 'cart_view' %}" class="nav-icon-btn" title="Cart" style="position:relative;">
+      <span class="material-icons-outlined">shopping_bag</span>
+      {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+    </a>
+    <button class="nav-icon-btn" title="Account">
+      <span class="material-icons-outlined">account_circle</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <span class="hero-eyebrow">Our Collections</span>
+  <h1 class="hero-title">Find Your <em>Identity</em></h1>
+  <p class="hero-sub">
+    Curated drops across every style. From old money classics to retro jerseys —
+    discover the collection that speaks your language.
+  </p>
+</section>
+
+<!-- CATEGORY GRID -->
+<section class="categories-section">
+  <div class="cat-grid">
+
+    {% for category in categories %}
+    <a href="{% url 'user_product_list' %}?category={{ category.id }}"
+       class="cat-card">
+
+      <!-- Background image or gradient -->
+      <div class="cat-bg {% if not category.image %}grad-{{ forloop.counter|add:0 }}{% endif %}">
+        {% if category.image %}
+          <img src="{{ category.image.url }}" alt="{{ category.category_name }}" loading="lazy"/>
+        {% endif %}
+      </div>
+
+      <!-- Overlay -->
+      <div class="cat-overlay"></div>
+
+      <!-- Product count badge -->
+      {% if category.product_count %}
+      <div class="cat-badge">{{ category.product_count }} styles</div>
+      {% endif %}
+
+      <!-- Content -->
+      <div class="cat-content">
+        <div class="cat-eyebrow">Collection</div>
+        <div class="cat-name">{{ category.category_name }}</div>
+        <div class="cat-meta">
+          {% if category.product_count %}
+          <span class="cat-count">{{ category.product_count }} products</span>
+          {% endif %}
+          <div class="cat-arrow">
+            <span class="material-icons-outlined">arrow_forward</span>
+          </div>
+        </div>
+      </div>
+
+    </a>
+    {% empty %}
+    <div style="grid-column:1/-1;text-align:center;padding:4rem;color:var(--text-muted);">
+      <span class="material-icons-outlined" style="font-size:2.5rem;display:block;margin-bottom:.75rem;color:var(--text-sub);">category</span>
+      No collections available yet.
+    </div>
+    {% endfor %}
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  © 2024 Outfito. All Rights Reserved. &nbsp;·&nbsp; Made with ♥ in India
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,650 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Variant – {{ product.name }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --brand:       #1a3c34;
+      --brand-light: #e8f0ee;
+      --accent:      #2d6a5a;
+      --success:     #28a745;
+      --danger:      #dc3545;
+      --text:        #1e2526;
+      --muted:       #6b7b7d;
+      --border:      #dde4e3;
+      --bg:          #f4f7f6;
+      --card:        #ffffff;
+      --input-bg:    #f9fbfa;
+      --radius:      10px;
+      --radius-sm:   6px;
+      --shadow:      0 4px 24px rgba(26,60,52,.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    /* ── Card ───────────────────────────────────────────── */
+    .modal-card {
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 620px;
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 22px 28px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-header h5 { font-size: 17px; font-weight: 600; }
+    .modal-header small { font-size: 12.5px; color: var(--muted); display: block; margin-top: 2px; }
+
+    .btn-close-custom {
+      width: 30px; height: 30px;
+      border: none; background: var(--bg);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--muted); font-size: 14px;
+      text-decoration: none; transition: background .15s;
+    }
+    .btn-close-custom:hover { background: var(--border); }
+
+    .modal-body { padding: 24px 28px; }
+
+    /* ── Alerts ─────────────────────────────────────────── */
+    .alert-item {
+      padding: 9px 14px; border-radius: var(--radius-sm);
+      font-size: 13px; margin-bottom: 10px;
+    }
+    .alert-danger  { background: #fff0f0; color: #c0392b; border: 1px solid #f5c6cb; }
+    .alert-success { background: #f0fff4; color: #1a7a45; border: 1px solid #b7e4c7; }
+
+    /* ── Section label ──────────────────────────────────── */
+    .section-label {
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .8px;
+      color: var(--muted); margin-bottom: 10px;
+    }
+
+    /* ── Image upload ───────────────────────────────────── */
+    .images-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .img-upload-box {
+      aspect-ratio: 1;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      background: var(--input-bg);
+      position: relative; overflow: hidden; cursor: pointer;
+      transition: border-color .2s;
+    }
+    .img-upload-box:hover { border-color: var(--accent); }
+    .img-upload-box input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 2;
+    }
+    .img-upload-box .preview-img {
+      width: 100%; height: 100%; object-fit: cover;
+      border-radius: calc(var(--radius) - 2px);
+    }
+    .img-upload-box .placeholder {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 6px; color: var(--muted); font-size: 12px;
+    }
+    .img-upload-box .placeholder svg { opacity: .5; }
+    .img-remove-btn {
+      position: absolute; top: 6px; right: 6px;
+      width: 22px; height: 22px;
+      background: var(--danger); border: none; border-radius: 50%;
+      color: #fff; font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 3;
+    }
+    .img-label { text-align: center; font-size: 11px; color: var(--muted); margin-top: 5px; }
+
+    /* ── Fields ─────────────────────────────────────────── */
+    .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-group.full { grid-column: 1 / -1; }
+    .field-group label { font-size: 12px; font-weight: 500; color: var(--muted); }
+    .field-group input,
+    .field-group select {
+      height: 40px; padding: 0 12px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--input-bg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px; color: var(--text); outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .field-group input:focus,
+    .field-group select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(45,106,90,.10);
+    }
+
+    /* SKU auto-preview */
+    .sku-preview {
+      background: var(--brand-light) !important;
+      font-family: 'Courier New', monospace !important;
+      font-size: 12.5px !important;
+      color: var(--brand) !important;
+      letter-spacing: .5px;
+    }
+    .sku-generating {
+      font-size: 11px; color: var(--muted); margin-top: 4px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .sku-dot {
+      width: 6px; height: 6px; background: var(--accent);
+      border-radius: 50%; animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:.3} 50%{opacity:1} }
+
+    /* Color picker */
+    .color-row { display: flex; align-items: center; gap: 10px; }
+    .color-swatch-wrap {
+      width: 40px; height: 40px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden; flex-shrink: 0;
+      cursor: pointer; position: relative;
+    }
+    .color-swatch-wrap input[type="color"] {
+      position: absolute; inset: -4px;
+      width: calc(100% + 8px); height: calc(100% + 8px);
+      border: none; padding: 0; cursor: pointer; opacity: 0;
+    }
+    .color-swatch-preview { width: 100%; height: 100%; pointer-events: none; background: #cccccc; }
+    .color-hex-input { flex: 1; }
+
+    /* Size chips */
+    .size-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .size-chip { position: relative; }
+    .size-chip input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .size-chip label {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 36px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 12.5px; font-weight: 500;
+      color: var(--muted); cursor: pointer;
+      transition: all .15s;
+      background: var(--input-bg);
+      user-select: none;
+    }
+    .size-chip input:checked + label { background: var(--brand); border-color: var(--brand); color: #fff; }
+    .size-chip label:hover { border-color: var(--accent); color: var(--accent); }
+    .size-chip input:checked + label:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* Price / Stock */
+    .input-prefix-wrap { position: relative; }
+    .input-prefix-wrap .prefix {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      font-size: 13px; color: var(--muted); pointer-events: none;
+    }
+    .input-prefix-wrap input { padding-left: 26px !important; }
+    .stock-badge {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      font-size: 10px; font-weight: 600;
+      padding: 2px 7px; border-radius: 20px; pointer-events: none;
+    }
+    .stock-ok  { background: #e8f8ee; color: #1a7a45; }
+    .stock-low { background: #fff3cd; color: #856404; }
+    .stock-out { background: #fce8e8; color: #c0392b; }
+
+    /* Toggles */
+    .toggle-row {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--input-bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-top: 14px;
+    }
+    .toggle-label { font-size: 13.5px; font-weight: 500; }
+    .toggle-sub   { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+    .toggle-switch { position: relative; width: 44px; height: 24px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: var(--border); border-radius: 100px;
+      cursor: pointer; transition: background .2s;
+    }
+    .toggle-track::after {
+      content: ''; position: absolute;
+      width: 18px; height: 18px;
+      background: #fff; border-radius: 50%;
+      top: 3px; left: 3px;
+      transition: transform .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+    .toggle-switch input:checked ~ .toggle-track { background: var(--accent); }
+    .toggle-switch input:checked ~ .toggle-track::after { transform: translateX(20px); }
+
+    /* Footer */
+    .modal-footer-custom {
+      padding: 16px 28px 22px;
+      display: flex; align-items: center;
+      justify-content: flex-end; gap: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-discard {
+      height: 40px; padding: 0 20px;
+      background: none; border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px; font-weight: 500;
+      color: var(--muted); cursor: pointer;
+      text-decoration: none; display: inline-flex; align-items: center;
+      transition: border-color .15s, color .15s;
+    }
+    .btn-discard:hover { border-color: var(--text); color: var(--text); }
+    .btn-add {
+      height: 40px; padding: 0 24px;
+      background: var(--brand); border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px; font-weight: 600;
+      color: #fff; cursor: pointer;
+      transition: background .15s, transform .1s;
+    }
+    .btn-add:hover  { background: var(--accent); }
+    .btn-add:active { transform: scale(.97); }
+  </style>
+</head>
+
+<body>
+<div class="modal-card">
+
+  <!-- Header -->
+  <div class="modal-header">
+    <div>
+      <h5>Add Variant</h5>
+      <small>{{ product.name }}</small>
+    </div>
+    <a href="{% url 'variant_list' product.id %}" class="btn-close-custom" title="Cancel">✕</a>
+  </div>
+
+  <!-- Alerts -->
+  <div class="modal-body" style="padding-bottom:0;">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert-item alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="modal-body">
+
+      <!-- ── Images ─────────────────────────────────────── -->
+      <p class="section-label">Product Images</p>
+      <div class="images-grid">
+
+        <!-- Cover -->
+        <div>
+          <div class="img-upload-box" id="box-cover">
+            <input type="file" name="image" accept="image/*"
+                   onchange="previewImage(this,'box-cover')">
+            <div class="placeholder">
+              <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <path d="M21 15l-5-5L5 21"/>
+              </svg>
+              <span>Cover</span>
+            </div>
+          </div>
+          <p class="img-label">Cover *</p>
+        </div>
+
+        <!-- Side -->
+        <div>
+          <div class="img-upload-box" id="box-side">
+            <input type="file" name="image_side" accept="image/*"
+                   onchange="previewImage(this,'box-side')">
+            <div class="placeholder">
+              <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <path d="M21 15l-5-5L5 21"/>
+              </svg>
+              <span>Side</span>
+            </div>
+          </div>
+          <p class="img-label">Side</p>
+        </div>
+
+        <!-- Back -->
+        <div>
+          <div class="img-upload-box" id="box-back">
+            <input type="file" name="image_back" accept="image/*"
+                   onchange="previewImage(this,'box-back')">
+            <div class="placeholder">
+              <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <path d="M21 15l-5-5L5 21"/>
+              </svg>
+              <span>Back</span>
+            </div>
+          </div>
+          <p class="img-label">Back</p>
+        </div>
+
+      </div>
+
+      <!-- ── Fields ─────────────────────────────────────── -->
+      <div class="fields-grid">
+
+        <!-- SKU auto-preview (read-only, generated server-side) -->
+        <div class="field-group full">
+          <label>SKU (auto-generated on save)</label>
+          <input type="text" id="sku-preview-field"
+       class="sku-preview"
+       readonly  title="SKU will be generated automatically">
+          <div class="sku-generating">
+            <div class="sku-dot"></div>
+            Will be generated based on category · type · color · size
+          </div>
+        </div>
+
+        <!-- Color picker -->
+        <div class="field-group full">
+          <label>Color</label>
+          <div class="color-row">
+            <div class="color-swatch-wrap" title="Pick a colour">
+              <div class="color-swatch-preview" id="color-swatch"></div>
+              <input type="color" id="color-picker" oninput="syncColor(this.value)">
+            </div>
+            <input type="text" name="color" id="color-hex"
+                   class="color-hex-input"
+                   value="{{ old.color|default:'' }}"
+                   placeholder="e.g. yellow, blue"
+                   oninput="syncHex(this.value)">
+          </div>
+        </div>
+
+        <!-- Size checkboxes -->
+        <div class="field-group full">
+          <label>Size *</label>
+          <div class="size-chips">
+            {% for s in sizes %}
+            <div class="size-chip">
+              <input type="checkbox" name="size" id="size-{{ s }}" value="{{ s }}"
+                     {% if old.size == s %}checked{% endif %}>
+              <label for="size-{{ s }}">{{ s }}</label>
+            </div>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="size_hidden" id="size-hidden"
+                 value="{{ old.size|default:'' }}">
+        </div>
+
+        <!-- Price -->
+        <div class="field-group">
+          <label>Price *</label>
+          <div class="input-prefix-wrap">
+            <span class="prefix">₹</span>
+            <input type="number" name="price" step="0.01" min="0.01"
+                   value="{{ old.price|default:'' }}"
+                   required placeholder="0.00">
+          </div>
+        </div>
+
+        <!-- Stock -->
+        <div class="field-group">
+          <label>Stock *</label>
+          <div class="input-prefix-wrap" style="position:relative;">
+            <input type="number" name="stock" min="0" id="stock-input"
+                   value="{{ old.stock|default:'' }}"
+                   required placeholder="0"
+                   oninput="updateStockBadge(this.value)">
+            <span class="stock-badge stock-out" id="stock-badge">New</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Active toggle -->
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Active Variant</div>
+          <div class="toggle-sub">Visible to customers when active</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" name="is_active" checked>
+          <div class="toggle-track"></div>
+        </label>
+      </div>
+
+      <!-- Default toggle -->
+      <div class="toggle-row" style="margin-top:8px;">
+        <div>
+          <div class="toggle-label">Set as Default Variant</div>
+          <div class="toggle-sub">Shown first on the product page</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" name="is_default">
+          <div class="toggle-track"></div>
+        </label>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer-custom">
+      <a href="{% url 'variant_list' product.id %}" class="btn-discard">Discard</a>
+      <button type="submit" class="btn-add">Add Variant</button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+
+const COLOR_MAP = {
+  black:'#000000', white:'#ffffff', red:'#ef4444', blue:'#3b82f6',
+  green:'#22c55e', yellow:'#eab308', orange:'#f97316', purple:'#a855f7',
+  pink:'#ec4899', gray:'#6b7280', grey:'#6b7280', brown:'#92400e',
+  navy:'#1e3a5f', gold:'#fbbf24', silver:'#94a3b8', cyan:'#06b6d4',
+  cream:'#f5f0e8', beige:'#f5f0e8', maroon:'#7f1d1d', olive:'#4d7c0f',
+  teal:'#0d9488', indigo:'#4f46e5', rose:'#f43f5e', amber:'#f59e0b',
+  lime:'#84cc16', emerald:'#10b981', violet:'#7c3aed', fuchsia:'#d946ef',
+  sky:'#0ea5e9', slate:'#64748b', zinc:'#71717a', stone:'#78716c',
+  coral:'#f87171', peach:'#fbbf24', lavender:'#a78bfa', mint:'#6ee7b7',
+  charcoal:'#374151', offwhite:'#f9fafb', ivory:'#fefce8', khaki:'#a3a35a',
+};
+function hexToRgb(hex) {
+  const h = hex.replace('#','');
+  const n = parseInt(h.length===3 ? h.split('').map(c=>c+c).join('') : h, 16);
+  return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 };
+}
+function getClosestColorName(hex) {
+  let minDist = Infinity;
+  let closest = "black";
+
+  const target = hexToRgb(hex);
+
+  for (const [name, value] of Object.entries(COLOR_MAP)) {
+    const c = hexToRgb(value);
+
+    const dist =
+      (target.r - c.r) ** 2 +
+      (target.g - c.g) ** 2 +
+      (target.b - c.b) ** 2;
+
+    if (dist < minDist) {
+      minDist = dist;
+      closest = name;
+    }
+  }
+
+  return closest;
+}
+function syncColor(hex) {
+  const swatch = document.getElementById('color-swatch');
+  const input  = document.getElementById('color-hex');
+
+  swatch.style.background = hex;
+
+  const name = getClosestColorName(hex);
+
+  input.value = name;
+
+  generateSkuPreview();
+}
+  /* ── Image preview ──────────────────────────────────── */
+  function previewImage(input, boxId) {
+    if (!input.files || !input.files[0]) return;
+    const box = document.getElementById(boxId);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const ph = box.querySelector('.placeholder');
+      if (ph) ph.remove();
+      let img = box.querySelector('.preview-img');
+      if (!img) {
+        img = document.createElement('img');
+        img.className = 'preview-img';
+        box.insertBefore(img, box.firstChild);
+      }
+      img.src = e.target.result;
+      if (!box.querySelector('.img-remove-btn')) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'img-remove-btn';
+        btn.textContent = '✕';
+        btn.onclick = () => removeImage(boxId, input);
+        box.appendChild(btn);
+      }
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  function removeImage(boxId, inputEl) {
+    const box = document.getElementById(boxId);
+    const img = box.querySelector('.preview-img');
+    if (img) img.remove();
+    const btn = box.querySelector('.img-remove-btn');
+    if (btn) btn.remove();
+    if (inputEl) inputEl.value = '';
+    if (!box.querySelector('.placeholder')) {
+      const ph = document.createElement('div');
+      ph.className = 'placeholder';
+      ph.innerHTML = `<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Upload</span>`;
+      box.appendChild(ph);
+    }
+  }
+
+  /* ── Color ──────────────────────────────────────────── */
+
+  function syncHex(val) {
+    const swatch = document.getElementById('color-swatch');
+    const picker = document.getElementById('color-picker');
+
+    const lower = val.toLowerCase();
+
+    // name → hex
+    const entry = Object.entries(COLOR_MAP).find(
+        ([name, hex]) => name === lower
+    );
+
+    if (entry) {
+        swatch.style.background = entry[1];
+        picker.value = entry[1];
+    }
+
+    // hex input
+    else if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(val)) {
+        swatch.style.background = val;
+        picker.value = val;
+    }
+
+    generateSkuPreview();
+}
+
+  /* ── Size: single-select checkboxes ────────────────── */
+  document.querySelectorAll('.size-chip input[type="checkbox"]').forEach(cb => {
+  cb.addEventListener('change', () => {
+    if (cb.checked) {
+      document.querySelectorAll('.size-chip input[type="checkbox"]').forEach(o => {
+        if (o !== cb) o.checked = false;
+      });
+      document.getElementById('size-hidden').value = cb.value;
+    } else {
+      document.getElementById('size-hidden').value = '';
+    }
+
+    // 🔥 IMPORTANT: trigger SKU update
+    generateSkuPreview();
+  });
+});
+
+  /* ── Stock badge ────────────────────────────────────── */
+  function updateStockBadge(val) {
+    const badge = document.getElementById('stock-badge');
+    const n = parseInt(val, 10);
+    if (isNaN(n) || val === '') {
+      badge.className = 'stock-badge stock-out'; badge.textContent = 'New';
+    } else if (n === 0) {
+      badge.className = 'stock-badge stock-out'; badge.textContent = 'Out';
+    } else if (n <= 5) {
+      badge.className = 'stock-badge stock-low'; badge.textContent = 'Low';
+    } else {
+      badge.className = 'stock-badge stock-ok'; badge.textContent = 'In Stock';
+    }
+  }
+
+function generateSkuPreview() {
+    const color = document.getElementById('color-hex').value.toUpperCase();
+    const size = document.getElementById('size-hidden').value.toUpperCase();
+
+    let parts = ['OUT'];
+
+    if (color && !color.startsWith('#')) {
+        parts.push(color.substring(0,3));
+    }
+
+    if (size) {
+        parts.push(size);
+    }
+
+    document.getElementById('sku-preview-field').value = parts.join('-') + '-XXXX';
+}
+
+// trigger on input
+document.getElementById('color-hex').addEventListener('input', generateSkuPreview);
+document.getElementById('size-hidden').addEventListener('change', generateSkuPreview);
+window.onload = function() {
+    const colorInput = document.getElementById('color-hex').value;
+    if (colorInput) {
+        syncHex(colorInput);
+    }
+};
+</script>
+
+</body>
+</html>

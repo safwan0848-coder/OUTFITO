@@ -94,11 +94,29 @@ filter:blur(120px);
 .login-card{
 background: rgba(30,41,59,0.4);
 backdrop-filter: blur(18px);
-border-radius: 40px;
-padding: 30px;
-border: 1px solid rgba(255,255,255,0.08);
-width: 100%;
-max-width: 430px;
+border-radius:40px;
+padding:32px;
+border:1px solid rgba(255,255,255,0.08);
+width:100%;
+max-width:430px;
+position:relative;
+overflow:hidden;
+}
+
+.login-card::before{
+content:"";
+position:absolute;
+inset:0;
+border-radius:40px;
+padding:1px;
+background:linear-gradient(120deg,#00e5ff,#2563eb,#00e5ff);
+-webkit-mask:
+linear-gradient(#000 0 0) content-box,
+linear-gradient(#000 0 0);
+-webkit-mask-composite:xor;
+mask-composite:exclude;
+opacity:.25;
+pointer-events:none;
 }
 
 .neon-title{
@@ -113,14 +131,21 @@ font-size:28px;
 background:rgba(255,255,255,.05);
 border:1px solid rgba(255,255,255,.1);
 color:#fff;
-padding:10px 14px;
+padding:12px 14px;
 border-radius:14px;
-font-size:13px;
+font-size:14px;
+transition:all .25s ease;
+}
+
+.form-control:hover{
+border-color:rgba(0,229,255,.4);
 }
 
 .form-control:focus{
 border-color:#00e5ff;
-box-shadow:0 0 12px rgba(0,229,255,.4);
+box-shadow:
+0 0 10px rgba(0,229,255,.5),
+0 0 25px rgba(0,229,255,.25);
 }
 
 .password-wrapper{
@@ -157,16 +182,21 @@ color:#00e5ff;
 }
 
 .btn-primary{
-background:#2563eb;
+background:linear-gradient(90deg,#2563eb,#3b82f6);
 border:none;
-border-radius:25px;
-padding:10px;
-font-weight:600;
-font-size:13px;
+border-radius:30px;
+padding:12px;
+font-weight:700;
+font-size:14px;
+transition:all .25s ease;
 }
 
 .btn-primary:hover{
-background:#1d4ed8;
+background:linear-gradient(90deg,#1d4ed8,#00e5ff);
+box-shadow:
+0 0 12px rgba(0,229,255,.5),
+0 0 30px rgba(0,229,255,.2);
+transform:translateY(-1px);
 }
 
 .divider{
@@ -228,6 +258,71 @@ font-size:13px;
 color:#facc15;
 font-size:13px;
 }
+
+.premium-input-group{
+position:relative;
+margin-bottom:20px;
+}
+
+.premium-input-group input{
+width:100%;
+background:rgba(255,255,255,.05);
+border:1px solid rgba(255,255,255,.1);
+color:#fff;
+padding:14px 14px;
+border-radius:14px;
+font-size:14px;
+outline:none;
+transition:all .25s ease;
+}
+
+.premium-input-group input:focus{
+border-color:#00e5ff;
+box-shadow:
+0 0 8px rgba(0,229,255,.5),
+0 0 20px rgba(0,229,255,.25);
+}
+
+.premium-input-group label{
+position:absolute;
+left:14px;
+top:12px;
+font-size:13px;
+color:#94a3b8;
+pointer-events:none;
+transition:.2s ease;
+}
+
+.premium-input-group input:focus + label,
+.premium-input-group input:not(:placeholder-shown) + label{
+top:-7px;
+font-size:11px;
+color:#00e5ff;
+background:#0B101B;
+padding:0 6px;
+border-radius:6px;
+}
+
+.premium-btn{
+background:linear-gradient(90deg,#2563eb,#3b82f6);
+border:none;
+border-radius:30px;
+padding:12px;
+font-weight:700;
+letter-spacing:.5px;
+transition:.25s;
+}
+
+.premium-btn:hover{
+background:linear-gradient(90deg,#1d4ed8,#00e5ff);
+transform:translateY(-1px);
+}
+
+.form-message{
+font-size:13px;
+margin-bottom:12px;
+text-align:center;
+}
 </style>
 </head>
 
@@ -237,7 +332,7 @@ font-size:13px;
 <div class="row vh-100">
 
 <div class="col-lg-6 d-none d-lg-block left-section p-0">
-<img src="{% static 'images/Login.jpeg' %}" alt="Outfito Hero">
+<img src="{% static 'images/you.png' %}" alt="Outfito Hero">
 <div class="left-overlay"></div>
 
 <div class="left-content">
@@ -264,38 +359,34 @@ A premium financial ecosystem crafted for modern professionals.
 
 <h2 class="neon-title">Own Your Style</h2>
 
-<form method="POST">
+<form method="POST" class="premium-form">
 {% csrf_token %}
 
 {% if messages %}
-{% for message in messages %}
-{% if forloop.last %}
-<div class="mb-2
-{% if message.tags == 'error' %}
-error-text
-{% elif message.tags == 'success' %}
-success-text
-{% else %}
-warning-text
-{% endif %}
-">
-{{ message }}
-</div>
-{% endif %}
-{% endfor %}
+    {% for message in messages %}
+        <div class="form-message
+        {% if message.tags == 'error' %}error-text
+        {% elif message.tags == 'success' %}success-text
+        {% else %}warning-text
+        {% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
 {% endif %}
 
-<div class="mb-3 text-start">
-<label class="form-label text-secondary small">Email Address</label>
-<input type="email" id="emailInput" name="email" class="form-control" required>
+<div class="premium-input-group">
+<input type="email" name="email" id="emailInput" placeholder=" " required>
+<label>Email Address</label>
 </div>
 
-<div class="mb-3 text-start">
-<label class="form-label text-secondary small">Password</label>
+<div class="premium-input-group password-wrapper">
 
-<div class="password-wrapper">
-<input type="password" id="password" name="password" class="form-control" required>
+<input type="password" id="password" name="password" placeholder=" " required>
+
+<label>Password</label>
+
 <span class="eye-btn" onclick="togglePassword()">👁</span>
+
 </div>
 
 <div class="forgot-link">
@@ -304,9 +395,7 @@ Forgot Password?
 </a>
 </div>
 
-</div>
-
-<button type="submit" class="btn btn-primary w-100 mb-3">
+<button type="submit" class="premium-btn w-100">
 Sign In →
 </button>
 
@@ -340,9 +429,19 @@ Secure Login • Bank-Level Encryption
 </div>
 
 <script>
+
+setTimeout(() => {
+    document.querySelectorAll('.alert, .error-text, .success-text, .warning-text')
+    .forEach(el => {
+        el.style.transition = "opacity 0.4s";
+        el.style.opacity = "0";
+        setTimeout(() => el.remove(), 400);
+    });
+}, 3000);
+
 function togglePassword(){
-const password=document.getElementById("password");
-password.type=password.type==="password"?"text":"password";
+const input=document.getElementById("password");
+input.type=input.type==="password"?"text":"password";
 }
 
 const emailInput=document.getElementById("emailInput");

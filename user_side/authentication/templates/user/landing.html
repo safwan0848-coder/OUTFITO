@@ -124,20 +124,25 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
 
-        .product-img-box {
-            position: relative;
-            aspect-ratio: 1/1.2;
-            background: #ffffff;
-            margin: 0;
-            overflow: hidden;
-        }
+.product-img-box {
+    position: relative;
+    aspect-ratio: 1/1.2;
+    background: #ffffff;
+    overflow: hidden;
+}
 
-        .product-img-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
+.product-img-box img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.4s ease;
+}
+.img-front { opacity: 1; z-index: 2; }
+.img-back { opacity: 0; z-index: 1; }
+
+.product-card:hover .img-front { opacity: 0; }
+.product-card:hover .img-back { opacity: 1; }
 
         .product-card:hover .product-img-box img {
             transform: scale(1.05);
@@ -158,6 +163,7 @@
             color: white;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;   
         }
 
         .cart-icon-btn:hover {
@@ -228,8 +234,8 @@
     <!-- CENTER MENU -->
     <div class="hidden lg:flex items-center gap-8 text-xs font-bold text-gray-400 uppercase tracking-widest">
         <a href="#" class="text-white border-b-2 border-emerald-500 pb-1">Home</a>
-        <a href="#categories" class="hover:text-white transition">Categories</a>
-        <a href="#vault" class="hover:text-white transition">Vault</a>
+        <a href="{% url 'categories_page' %}" class="hover:text-white transition">Categories</a>
+        <a href="{% url 'user_product_list' %}" class="hover:text-white transition">Vault</a>
         <a href="#about" class="hover:text-white transition">About</a>
     </div>
 
@@ -248,10 +254,14 @@
             <i class="fa-regular fa-heart cursor-pointer hover:text-emerald-500"></i>
 
             <!-- CART -->
-            <div class="relative">
-                <i class="fa-solid fa-cart-shopping cursor-pointer hover:text-emerald-500"></i>
-                <span class="absolute -top-2 -right-2 bg-emerald-500 text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-bold">2</span>
-            </div>
+<a href="{% url 'cart_view' %}">
+    <div class="relative">
+        <i class="fa-solid fa-cart-shopping cursor-pointer hover:text-emerald-500"></i>
+        <span class="absolute -top-2 -right-2 bg-emerald-500 text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+            {{ cart_count|default:0 }}
+        </span>
+    </div>
+</a>
 
             <!-- USER ACCOUNT -->
 <div class="relative">
@@ -360,37 +370,32 @@
                 <h2 class="text-3xl font-black italic uppercase tracking-tighter">Trending Categories</h2>
                 <p class="text-gray-500 text-sm font-medium">Select your favorite category to explore their latest model</p>
             </div>
-            <a href="#" class="text-emerald-500 text-[10px] font-black uppercase flex items-center gap-2">View All Categories <i class="fa-solid fa-arrow-right-long"></i></a>
+            <a href="{% url 'categories_page' %}" class="text-emerald-500 text-[10px] font-black uppercase flex items-center gap-2">View All Categories <i class="fa-solid fa-arrow-right-long"></i></a>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Cat 1 -->
-            <div class="category-card">
-                <img src="{% static 'images/oldmoney.jpeg' %}" class="category-img" alt="">
-                <div class="category-content">
-                    <h3 class="text-2xl font-black italic uppercase">Old Money</h3>
-                    <p class="text-[11px] text-gray-400 mt-1">Timeless aesthetics for the modern refined soul.</p>
-                    <button class="shop-btn">Shop Collection</button>
-                </div>
-            </div>
-            <!-- Cat 2 -->
-            <div class="category-card">
-                <img src="{% static 'images/freestyle.jpeg' %}" class="category-img" alt="">
-                <div class="category-content">
-                    <h3 class="text-2xl font-black italic uppercase">Free Style</h3>
-                    <p class="text-[11px] text-gray-400 mt-1">Unapologetic expression through streetwear.</p>
-                    <button class="shop-btn">Shop Collection</button>
-                </div>
-            </div>
-            <!-- Cat 3 -->
-            <div class="category-card">
-                <img src="{% static 'images/retrojersey.jpeg' %}" class="category-img" alt="">
-                <div class="category-content">
-                    <h3 class="text-2xl font-black italic uppercase">Retro Jerseys</h3>
-                    <p class="text-[11px] text-gray-400 mt-1">Iconic sporting moments reborn for the street.</p>
-                    <button class="shop-btn">Shop Collection</button>
-                </div>
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+{% for category in categories %}
+<div class="category-card">
+    <img src="{{ category.image.url }}" class="category-img">
+
+    <div class="category-content">
+        <h3 class="text-2xl font-black italic uppercase">
+            {{ category.name }}
+        </h3>
+
+        <p class="text-[11px] text-gray-400 mt-1">
+            {{ category.description|truncatechars:60 }}
+        </p>
+
+        <a href="{% url 'user_product_list' %}?category={{ category.id }}">
+            <button class="shop-btn">Shop Collection</button>
+        </a>
+    </div>
+</div>
+{% endfor %}
+
+</div>
         </div>
     </section>
 
@@ -404,83 +409,67 @@
             <button class="bg-white/5 border border-white/10 px-6 py-2 rounded text-[10px] font-black uppercase hover:bg-white hover:text-black transition">View All</button>
         </div>
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            <!-- Product 1 -->
-            <div class="product-card">
-                <div class="product-img-box">
-                    <img src="{% static 'images/sp1.jpeg' %}" alt="">
-                    <div class="discount-badge">-25%</div>
-                    <div class="cart-icon-btn">
-                        <i class="fa-solid fa-cart-shopping text-xs"></i>
-                    </div>
-                </div>
-                <div class="p-4">
-                    <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest mb-1">PANT</p>
-                    <h4 class="font-bold text-sm mb-3">Handcrafted Denim</h4>
-                    <div class="flex items-center">
-                        <span class="price-old">₹9,999.00</span>
-                        <span class="price-new italic italic">₹7,499.00</span>
-                    </div>
-                </div>
-            </div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
 
-            <!-- Product 2 -->
-            <div class="product-card">
-                <div class="product-img-box">
-                    <img src="{% static 'images/st1.jpeg' %}" alt="">
-                    <div class="discount-badge">-15%</div>
-                    <div class="cart-icon-btn">
-                        <i class="fa-solid fa-cart-shopping text-xs"></i>
-                    </div>
-                </div>
-                <div class="p-4">
-                    <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest mb-1">TEES</p>
-                    <h4 class="font-bold text-sm mb-3">LeBron James tees</h4>
-                    <div class="flex items-center">
-                        <span class="price-old">₹2,499.00</span>
-                        <span class="price-new italic italic">₹1,999.00</span>
-                    </div>
-                </div>
-            </div>
+{% for product in products %}
+{% with variant=product.active_variants|first %}
 
-            <!-- Product 3 -->
-            <div class="product-card">
-                <div class="product-img-box">
-                    <img src="{% static 'images/os1.jpeg' %}" alt="">
-                    <div class="discount-badge">-30%</div>
-                    <div class="cart-icon-btn">
-                        <i class="fa-solid fa-cart-shopping text-xs"></i>
-                    </div>
-                </div>
-                <div class="p-4">
-                    <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest mb-1">SHIRT</p>
-                    <h4 class="font-bold text-sm mb-3">Patchwork Edition</h4>
-                    <div class="flex items-center">
-                        <span class="price-old">₹2,999.00</span>
-                        <span class="price-new italic italic">₹2,199.00</span>
-                    </div>
-                </div>
-            </div>
+<div class="product-card">
 
-            <!-- Product 4 -->
-            <div class="product-card">
-                <div class="product-img-box">
-                    <img src="{% static 'images/jt1.jpeg' %}" alt="">
-                    <div class="discount-badge">-10%</div>
-                    <div class="cart-icon-btn">
-                        <i class="fa-solid fa-cart-shopping text-xs"></i>
-                    </div>
-                </div>
-                <div class="p-4">
-                    <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest mb-1">ITEM</p>
-                    <h4 class="font-bold text-sm mb-3">Brazil National</h4>
-                    <div class="flex items-center">
-                        <span class="price-old">₹1,499.00</span>
-                        <span class="price-new italic italic">₹1,299.00</span>
-                    </div>
-                </div>
-            </div>
+    <!-- IMAGE BOX -->
+    <div class="product-img-box">
+
+        <!-- FRONT IMAGE -->
+        {% if variant and variant.image %}
+            <img src="{{ variant.image.url }}" class="img-front">
+        {% elif product.image_side %}
+            <img src="{{ product.image_side.url }}" class="img-front">
+        {% else %}
+            <img src="{% static 'images/default.png' %}" class="img-front">
+        {% endif %}
+
+        <!-- BACK IMAGE -->
+        {% if product.image_back %}
+            <img src="{{ product.image_back.url }}" class="img-back">
+        {% endif %}
+
+        <!-- CART BUTTON -->
+        <div class="cart-icon-btn">
+            <i class="fa-solid fa-cart-shopping text-xs"></i>
         </div>
+
+    </div>
+
+    <!-- PRODUCT DETAILS (INSIDE CARD ✅) -->
+    <div class="p-4">
+
+        <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest mb-1">
+            {{ product.category.name }}
+        </p>
+
+        <h4 class="font-bold text-sm mb-3">
+            {{ product.name }}
+        </h4>
+
+        <!-- PRICE -->
+        {% if variant %}
+        <div class="flex items-center">
+            <span class="price-new">₹{{ variant.price }}</span>
+        </div>
+        {% else %}
+        <div class="text-red-400 text-xs">
+            Out of stock
+        </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endwith %}
+{% endfor %}
+
+</div>
     </section>
 
     <!-- FOOTER -->

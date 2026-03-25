@@ -1,0 +1,855 @@
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Outfito Admin – Product Management</title>
+
+  <!-- Bootstrap 5 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+  <style>
+    /* ── CSS Variables ── */
+    :root {
+      --primary:             #064e3b;
+      --primary-hover:       #043d2e;
+      --primary-light:       #d1fae5;
+      --accent:              #10b981;
+      --bg:                  #fdfcf8;
+      --sidebar-bg:          #f5f1e8;
+      --card-bg:             #ffffff;
+      --border:              #e5e1d8;
+      --text:                #1c1917;
+      --text-muted:          #78716c;
+      --table-hover:         #faf9f6;
+      --badge-active-bg:     #d1fae5;
+      --badge-active-fg:     #065f46;
+      --badge-inactive-bg:   #fee2e2;
+      --badge-inactive-fg:   #991b1b;
+      --danger-hover-bg:     #fee2e2;
+      --danger-hover-fg:     #dc2626;
+      --shadow-sm:           0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md:           0 4px 16px rgba(0,0,0,.08);
+      --shadow-lg:           0 10px 40px rgba(0,0,0,.12);
+      --radius:              0.625rem;
+      --radius-xl:           1.25rem;
+      --sidebar-width:       260px;
+      --font-display:        'Cormorant Garamond', serif;
+      --font-body:           'DM Sans', sans-serif;
+      --tr:                  .22s ease;
+    }
+    [data-theme="dark"] {
+      --bg:                  #121212;
+      --sidebar-bg:          #1e1e1e;
+      --card-bg:             #1e1e1e;
+      --border:              #2e2e2e;
+      --text:                #e7e5e4;
+      --text-muted:          #a8a29e;
+      --table-hover:         #252525;
+      --badge-active-bg:     rgba(16,185,129,.15);
+      --badge-active-fg:     #6ee7b7;
+      --badge-inactive-bg:   rgba(239,68,68,.15);
+      --badge-inactive-fg:   #fca5a5;
+      --shadow-sm:           0 1px 3px rgba(0,0,0,.3);
+      --shadow-md:           0 4px 16px rgba(0,0,0,.4);
+      --shadow-lg:           0 10px 40px rgba(0,0,0,.5);
+      --primary-light:       rgba(6,78,59,.25);
+      --danger-hover-bg:     rgba(220,38,38,.15);
+      --danger-hover-fg:     #fca5a5;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      transition: background var(--tr), color var(--tr);
+    }
+
+    /* ─── Layout ─── */
+    .app-wrapper { display: flex; min-height: 100vh; }
+
+    /* ─── Sidebar ─── */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; height: 100vh;
+      transition: background var(--tr), border-color var(--tr);
+      z-index: 100;
+    }
+    .sidebar-brand {
+      padding: 2rem 1.75rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-brand h1 {
+      font-family: var(--font-display);
+      font-size: 2rem; font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -.02em; margin: 0; line-height: 1;
+    }
+    [data-theme="dark"] .sidebar-brand h1 { color: #6ee7b7; }
+
+    .sidebar-nav { flex: 1; padding: .75rem; overflow-y: auto; }
+    .nav-label {
+      font-size: .65rem; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--text-muted); padding: .6rem 1rem .4rem;
+      display: block; margin-top: .5rem;
+    }
+    .nav-link-item {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .65rem 1rem; border-radius: var(--radius);
+      font-size: .85rem; font-weight: 500;
+      color: var(--text-muted); text-decoration: none;
+      transition: background var(--tr), color var(--tr);
+      margin-bottom: 2px;
+    }
+    .nav-link-item:hover {
+      background: rgba(6,78,59,.08); color: var(--primary);
+    }
+    [data-theme="dark"] .nav-link-item:hover {
+      background: rgba(110,231,183,.08); color: #6ee7b7;
+    }
+    .nav-link-item.active {
+      background: var(--primary); color: #fff;
+      box-shadow: 0 4px 12px rgba(6,78,59,.35);
+    }
+    .nav-link-item .material-icons-outlined { font-size: 1.1rem; }
+
+    .sidebar-footer { padding: 1rem .75rem; border-top: 1px solid var(--border); }
+    .user-card {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .6rem .85rem; border-radius: var(--radius);
+      background: rgba(255,255,255,.55);
+    }
+    [data-theme="dark"] .user-card { background: rgba(0,0,0,.25); }
+    .user-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      object-fit: cover; border: 2px solid var(--border);
+    }
+    .user-name  { font-size: .8rem; font-weight: 600; line-height: 1.2; }
+    .user-email { font-size: .7rem; color: var(--text-muted); }
+
+    /* ─── Main ─── */
+    .main-content {
+      margin-left: var(--sidebar-width); flex: 1;
+      padding: 2.5rem 2.5rem 3rem; min-height: 100vh;
+    }
+
+    /* ─── Page Header ─── */
+    .page-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; margin-bottom: 2.5rem;
+    }
+    .page-title {
+      font-family: var(--font-display); font-size: 2.6rem;
+      font-weight: 700; color: var(--text); line-height: 1;
+      margin-bottom: .5rem; letter-spacing: -.02em;
+    }
+    .title-underline {
+      width: 52px; height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 99px;
+    }
+    .header-actions { display: flex; align-items: center; gap: .75rem; }
+
+    .btn-notif {
+      position: relative; width: 40px; height: 40px;
+      border-radius: 50%; border: 1px solid var(--border);
+      background: var(--card-bg); color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background var(--tr), color var(--tr);
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-notif:hover { background: var(--sidebar-bg); color: var(--text); }
+    .notif-dot {
+      position: absolute; top: 7px; right: 7px;
+      width: 8px; height: 8px; background: #ef4444;
+      border-radius: 50%; border: 2px solid var(--card-bg);
+    }
+
+    .btn-add {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .6rem 1.4rem; background: var(--primary); color: #fff;
+      border: none; border-radius: var(--radius);
+      font-size: .85rem; font-weight: 600; font-family: var(--font-body);
+      cursor: pointer; text-decoration: none;
+      box-shadow: 0 4px 14px rgba(6,78,59,.35);
+      transition: background var(--tr), transform var(--tr), box-shadow var(--tr);
+    }
+    .btn-add:hover {
+      background: var(--primary-hover); color: #fff;
+      transform: translateY(-2px); box-shadow: 0 6px 20px rgba(6,78,59,.4);
+    }
+    .btn-add:active { transform: translateY(0); }
+    .btn-add .material-icons-outlined { font-size: 1rem; }
+
+    /* ─── Django Messages ─── */
+    .django-messages { margin-bottom: 1.25rem; }
+    .msg-item {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .75rem 1rem; border-radius: var(--radius);
+      font-size: .83rem; font-weight: 500; margin-bottom: .5rem;
+      animation: fadeIn .3s ease;
+    }
+    .msg-success { background: var(--badge-active-bg); color: var(--badge-active-fg); border: 1px solid rgba(16,185,129,.2); }
+    .msg-error   { background: var(--badge-inactive-bg); color: var(--badge-inactive-fg); border: 1px solid rgba(239,68,68,.2); }
+    .msg-warning { background: #fef9c3; color: #854d0e; border: 1px solid rgba(234,179,8,.2); }
+    [data-theme="dark"] .msg-warning { background: rgba(234,179,8,.1); color: #fde047; }
+    .msg-close {
+      margin-left: auto; background: none; border: none;
+      cursor: pointer; color: inherit; opacity: .6; font-size: 1rem;
+      display: flex; align-items: center;
+    }
+    .msg-close:hover { opacity: 1; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ─── Card ─── */
+    .pdt-card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: var(--radius-xl); box-shadow: var(--shadow-sm);
+      overflow: hidden; transition: background var(--tr), border-color var(--tr);
+    }
+    .card-top {
+      padding: 1.5rem 1.75rem; border-bottom: 1px solid var(--border);
+      display: flex; flex-wrap: wrap;
+      justify-content: space-between; align-items: center; gap: 1rem;
+    }
+    .card-title {
+      font-family: var(--font-display); font-size: 1.4rem;
+      font-weight: 600; color: var(--text); margin: 0;
+    }
+    .controls { display: flex; flex-wrap: wrap; gap: .65rem; align-items: center; }
+
+    /* ─── Form Controls ─── */
+    .search-wrap { position: relative; }
+    .search-wrap .material-icons-outlined {
+      position: absolute; left: .7rem;
+      top: 50%; transform: translateY(-50%);
+      font-size: .95rem; color: var(--text-muted); pointer-events: none;
+    }
+    .form-control-custom {
+      padding: .5rem 1rem .5rem 2.4rem;
+      background: var(--sidebar-bg); border: 1px solid var(--border);
+      border-radius: var(--radius); font-size: .82rem;
+      font-family: var(--font-body); color: var(--text);
+      width: 230px; outline: none;
+      transition: border-color var(--tr), box-shadow var(--tr), background var(--tr);
+    }
+    .form-control-custom:focus {
+      border-color: var(--primary); box-shadow: 0 0 0 3px rgba(6,78,59,.15);
+    }
+    .select-custom {
+      padding: .5rem 2.2rem .5rem 1rem;
+      background: var(--sidebar-bg); border: 1px solid var(--border);
+      border-radius: var(--radius); font-size: .82rem;
+      font-family: var(--font-body); color: var(--text);
+      outline: none; cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2378716c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right .75rem center;
+      transition: border-color var(--tr), background var(--tr);
+    }
+    .select-custom:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(6,78,59,.15); }
+
+    /* ─── Table ─── */
+    .table-wrap { overflow-x: auto; }
+    table.pdt-table { width: 100%; border-collapse: collapse; }
+    .pdt-table thead tr { background: var(--sidebar-bg); }
+    .pdt-table thead th {
+      padding: 1rem 1.25rem; font-size: .68rem;
+      font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--text-muted); white-space: nowrap;
+      border-bottom: 1px solid var(--border);
+    }
+    .pdt-table tbody tr { border-bottom: 1px solid var(--border); transition: background var(--tr); }
+    .pdt-table tbody tr:last-child { border-bottom: none; }
+    .pdt-table tbody tr:hover { background: var(--table-hover); }
+    .pdt-table td { padding: 1rem 1.25rem; font-size: .85rem; color: var(--text); vertical-align: middle; }
+
+    .pdt-img-wrap {
+      width: 48px; height: 62px;
+      border-radius: calc(var(--radius) - 2px);
+      overflow: hidden; background: var(--sidebar-bg);
+      box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+    }
+    .pdt-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .pdt-no-img {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted);
+    }
+    .pdt-no-img .material-icons-outlined { font-size: 1.4rem; }
+
+    .pdt-name { font-weight: 600; font-size: .87rem; line-height: 1.3; }
+    .pdt-sku  { font-size: .72rem; color: var(--text-muted); margin-top: 2px; font-family: 'Courier New', monospace; letter-spacing: .03em; }
+
+    .stock-value { font-weight: 600; }
+    .stock-zero  { color: #ef4444; }
+    .stock-low   { color: #f59e0b; }
+
+    /* Badges */
+    .badge-status {
+      display: inline-flex; align-items: center; gap: .3rem;
+      padding: .28rem .75rem; border-radius: 99px;
+      font-size: .72rem; font-weight: 600; letter-spacing: .02em;
+    }
+    .badge-status::before {
+      content: ''; width: 6px; height: 6px;
+      border-radius: 50%; display: inline-block;
+    }
+    .badge-active   { background: var(--badge-active-bg); color: var(--badge-active-fg); }
+    .badge-active::before { background: var(--badge-active-fg); }
+    .badge-inactive { background: var(--badge-inactive-bg); color: var(--badge-inactive-fg); }
+    .badge-inactive::before { background: var(--badge-inactive-fg); }
+
+    /* Action Buttons */
+    .action-btns { display: flex; align-items: center; gap: .25rem; }
+    .action-btn {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      border: none; background: transparent; border-radius: var(--radius);
+      cursor: pointer; color: var(--text-muted);
+      transition: background var(--tr), color var(--tr), transform .15s;
+      text-decoration: none;
+    }
+    .action-btn:hover { transform: scale(1.12); }
+    .action-btn .material-icons-outlined { font-size: 1.1rem; }
+    .action-btn.del:hover  { background: var(--danger-hover-bg); color: var(--danger-hover-fg); }
+    .action-btn.edit:hover { background: var(--primary-light); color: var(--primary); }
+    .action-btn.toggle-on  { color: var(--accent); }
+    .action-btn.toggle-on:hover  { background: var(--badge-active-bg); }
+    .action-btn.toggle-off { color: var(--text-muted); }
+    .action-btn.toggle-off:hover { background: var(--primary-light); color: var(--accent); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center; padding: 4rem 2rem; color: var(--text-muted);
+    }
+    .empty-state .material-icons-outlined { font-size: 3rem; opacity: .4; display: block; margin-bottom: .75rem; }
+    .empty-state p { font-size: .9rem; margin: 0; }
+
+    /* ─── Footer / Pagination ─── */
+    .card-footer-pdt {
+      padding: 1.1rem 1.75rem; border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: .75rem;
+    }
+    .showing-text { font-size: .75rem; color: var(--text-muted); }
+
+    .pagination-wrap { display: flex; align-items: center; gap: .3rem; }
+    .pg-btn {
+      height: 34px; padding: 0 .9rem;
+      border: 1px solid var(--border); background: var(--card-bg);
+      color: var(--text-muted); border-radius: var(--radius);
+      font-size: .8rem; font-family: var(--font-body); font-weight: 500;
+      cursor: pointer; display: inline-flex; align-items: center; gap: .2rem;
+      text-decoration: none;
+      transition: background var(--tr), color var(--tr), border-color var(--tr);
+    }
+    .pg-btn:hover { background: var(--sidebar-bg); color: var(--text); }
+    .pg-btn.disabled { opacity: .4; pointer-events: none; cursor: default; }
+    .pg-btn .material-icons-outlined { font-size: .95rem; }
+
+    .pg-num {
+      width: 34px; height: 34px; border: 1px solid var(--border);
+      background: var(--card-bg); color: var(--text-muted);
+      border-radius: var(--radius); font-size: .82rem;
+      font-family: var(--font-body); font-weight: 500;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+      text-decoration: none;
+      transition: background var(--tr), color var(--tr), border-color var(--tr), box-shadow var(--tr);
+    }
+    .pg-num:hover { background: var(--sidebar-bg); color: var(--text); }
+    .pg-num.active {
+      background: var(--primary); color: #fff; border-color: var(--primary);
+      box-shadow: 0 2px 10px rgba(6,78,59,.3); pointer-events: none;
+    }
+    .pg-dots { color: var(--text-muted); font-size: .85rem; padding: 0 .2rem; }
+
+    /* ─── Delete Confirm Modal ─── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.5); backdrop-filter: blur(4px);
+      z-index: 1000; align-items: center; justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: var(--radius-xl); padding: 2rem; width: min(96%, 420px);
+      box-shadow: var(--shadow-lg); animation: slideUp .25s ease;
+    }
+    .modal-box h4 {
+      font-family: var(--font-display); font-size: 1.4rem;
+      font-weight: 700; margin: 0 0 .5rem;
+    }
+    .modal-box p { font-size: .85rem; color: var(--text-muted); margin: 0 0 1.5rem; }
+    .modal-footer { display: flex; gap: .75rem; justify-content: flex-end; }
+    .btn-cancel {
+      padding: .6rem 1.3rem; border: 1px solid var(--border);
+      background: var(--sidebar-bg); color: var(--text);
+      border-radius: var(--radius); font-family: var(--font-body);
+      font-size: .85rem; font-weight: 500; cursor: pointer;
+    }
+    .btn-danger {
+      padding: .6rem 1.3rem; border: none;
+      background: #dc2626; color: #fff;
+      border-radius: var(--radius); font-family: var(--font-body);
+      font-size: .85rem; font-weight: 600; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(220,38,38,.3);
+      transition: background var(--tr);
+    }
+    .btn-danger:hover { background: #b91c1c; }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    /* ─── Theme Toggle ─── */
+    .theme-toggle {
+      position: fixed; bottom: 1.75rem; right: 1.75rem;
+      width: 46px; height: 46px; border-radius: 50%;
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--text); color: var(--bg);
+      box-shadow: var(--shadow-lg); z-index: 999;
+      transition: background var(--tr), color var(--tr), transform .2s;
+    }
+    .theme-toggle:hover { transform: scale(1.1); }
+    .theme-toggle .material-icons-outlined { font-size: 1.2rem; }
+    .icon-dark  { display: block; }
+    .icon-light { display: none;  }
+    [data-theme="dark"] .icon-dark  { display: none;  }
+    [data-theme="dark"] .icon-light { display: block; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 900px) {
+      .sidebar { width: 60px; }
+      .sidebar-brand h1, .nav-label,
+      .nav-link-item span:not(.material-icons-outlined),
+      .user-name, .user-email { display: none; }
+      .main-content { margin-left: 60px; padding: 1.5rem; }
+    }
+    @media (max-width: 600px) {
+      .main-content { padding: 1rem; }
+      .page-header { flex-direction: column; gap: 1rem; }
+      .card-top { flex-direction: column; align-items: flex-start; }
+      .controls { flex-direction: column; align-items: flex-start; }
+      .form-control-custom { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- ════════════ SIDEBAR ════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h1>Outfito</h1>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-label">Management</span>
+
+      <a class="nav-link-item" href="#">
+        <span class="material-icons-outlined">dashboard</span>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-link-item" href="#">
+        <span class="material-icons-outlined">shopping_bag</span>
+        <span>Orders</span>
+      </a>
+      <a class="nav-link-item active" href="{% url 'product_list' %}">
+        <span class="material-icons-outlined">inventory_2</span>
+        <span>Products</span>
+      </a>
+      <a class="nav-link-item" href="{% url 'category_list' %}">
+        <span class="material-icons-outlined">category</span>
+        <span>Categories</span>
+      </a>
+      <a class="nav-link-item" href="#">
+        <span class="material-icons-outlined">confirmation_number</span>
+        <span>Coupons</span>
+      </a>
+      <a class="nav-link-item" href="#">
+        <span class="material-icons-outlined">sell</span>
+        <span>Offers</span>
+      </a>
+      <a class="nav-link-item" href="#">
+        <span class="material-icons-outlined">people</span>
+        <span>Customers</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <img class="user-avatar"
+             src="{% if request.user.profile_image %}{{ request.user.profile_image.url }}{% else %}https://ui-avatars.com/api/?name={{ request.user.get_full_name|urlencode }}&background=064e3b&color=fff{% endif %}"
+             alt="{{ request.user.get_full_name }}"/>
+        <div>
+          <div class="user-name">{{ request.user.get_full_name }}</div>
+          <div class="user-email">{{ request.user.email }}</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ════════════ MAIN CONTENT ════════════ -->
+  <main class="main-content">
+
+    <!-- Page Header -->
+    <header class="page-header">
+      <div>
+        <h2 class="page-title">Product Management</h2>
+        <div class="title-underline"></div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-notif" title="Notifications">
+          <span class="material-icons-outlined" style="font-size:1.2rem;">notifications</span>
+          <span class="notif-dot"></span>
+        </button>
+        <a class="btn-add" href="{% url 'add_product' %}">
+          <span class="material-icons-outlined">add</span>
+          Add Product
+        </a>
+      </div>
+    </header>
+
+    <!-- ── Django Messages ── -->
+    {% if messages %}
+    <div class="django-messages">
+      {% for message in messages %}
+      <div class="msg-item msg-{{ message.tags }}">
+        <span class="material-icons-outlined" style="font-size:1rem;">
+          {% if message.tags == 'success' %}check_circle
+          {% elif message.tags == 'error' %}error
+          {% else %}info{% endif %}
+        </span>
+        {{ message }}
+        <button class="msg-close" onclick="this.parentElement.remove()">
+          <span class="material-icons-outlined" style="font-size:1rem;">close</span>
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ── Product Card ── -->
+    <div class="pdt-card">
+
+      <!-- Card Top: title + filters -->
+      <div class="card-top">
+        <h3 class="card-title">Products</h3>
+        <div class="controls">
+          <!-- 🔍 Search — GET param: search -->
+          <form method="GET" action="{% url 'product_list' %}" id="filterForm" style="display:contents;">
+            <div class="search-wrap">
+              <span class="material-icons-outlined">search</span>
+              <input
+                class="form-control-custom"
+                type="text" name="search"
+                value="{{ search }}"
+                placeholder="Search products…"
+                oninput="submitFilter()"
+              />
+            </div>
+
+            <!-- 📂 Category — GET param: category -->
+            <select class="select-custom" name="category" onchange="submitFilter()">
+              <option value="">All Categories</option>
+              {% for cat in categories %}
+              <option value="{{ cat.id }}"
+                {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>
+                {{ cat.category_name }}
+              </option>
+              {% endfor %}
+            </select>
+
+            <!-- 🔄 Status — GET param: status -->
+            <select class="select-custom" name="status" onchange="submitFilter()">
+              <option value="">All Status</option>
+              <option value="active"   {% if selected_status == "active"   %}selected{% endif %}>Active</option>
+              <option value="inactive" {% if selected_status == "inactive" %}selected{% endif %}>Inactive</option>
+            </select>
+
+            <!-- hidden page reset -->
+            <input type="hidden" name="page" value="1" id="pageInput"/>
+          </form>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <table class="pdt-table">
+          <thead>
+            <tr>
+              <th>Sl No</th>
+              <th>Image</th>
+              <th>Product / SKU</th>
+              <th>Price</th>
+              <th>Category</th>
+              <th>Stock</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+  {% for product in products %}
+  {% with variant=product.display_variant|default:None %}
+  <tr>
+
+    <!-- Serial Number -->
+    <td style="font-weight:600;">
+      {{ forloop.counter|add:products.start_index|add:"-1" }}
+    </td>
+
+    <!-- Image -->
+<td>
+  <div class="pdt-img-wrap">
+    {% if variant and variant.image %}
+      <img src="{{ variant.image.url }}" alt="{{ product.name }}" loading="lazy">
+    {% else %}
+      <div class="pdt-no-img">
+        <span class="material-icons-outlined">image_not_supported</span>
+      </div>
+    {% endif %}
+  </div>
+</td>
+
+    <!-- Name & SKU -->
+    <td>
+      <div class="pdt-name">{{ product.name }}</div>
+      {% if variant %}
+        <div class="pdt-sku">{{ variant.sku }}</div>
+      {% endif %}
+    </td>
+
+    <!-- Price -->
+    <td>
+      {% if variant %}
+        ₹{{ variant.price|floatformat:2 }}
+      {% else %}
+        <span style="color:var(--text-muted)">—</span>
+      {% endif %}
+    </td>
+
+    <!-- Category -->
+    <td style="color:var(--text-muted)">
+      {% if product.category %}
+  {{ product.category.category_name }}
+{% else %}
+  —
+{% endif %}
+    </td>
+
+    <!-- Stock -->
+    <td>
+      {% if variant %}
+        <span class="stock-value
+          {% if variant.stock == 0 %}stock-zero
+          {% elif variant.stock <= 5 %}stock-low{% endif %}">
+          {{ variant.stock }}
+        </span>
+      {% else %}
+        <span style="color:var(--text-muted)">—</span>
+      {% endif %}
+    </td>
+
+    <!-- Status -->
+    <td>
+      {% if product.is_listed %}
+        <span class="badge-status badge-active">Active</span>
+      {% else %}
+        <span class="badge-status badge-inactive">Inactive</span>
+      {% endif %}
+    </td>
+
+    <!-- Actions -->
+    <td>
+      <div class="action-btns">
+
+  <!-- Delete -->
+  <button
+    class="action-btn del"
+    onclick="confirmDelete('{% url 'delete_product' product.pk %}', '{{ product.name|escapejs }}')">
+    <span class="material-icons-outlined">delete</span>
+  </button>
+
+  <!-- Edit -->
+  <a class="action-btn edit" href="{% url 'edit_product' product.pk %}">
+    <span class="material-icons-outlined">edit</span>
+  </a>
+
+  <!-- Variant Management -->
+  <a class="action-btn" href="{% url 'variant_list' product.pk %}">
+    <span class="material-icons-outlined">tune</span>
+  </a>
+
+  <!-- Toggle -->
+  <a class="action-btn {% if product.is_listed %}toggle-on{% else %}toggle-off{% endif %}"
+     href="{% url 'toggle_product_status' product.pk %}">
+    <span class="material-icons-outlined">
+      {% if product.is_listed %}check_circle{% else %}radio_button_unchecked{% endif %}
+    </span>
+  </a>
+
+</div>
+    </td>
+
+  </tr>
+  {% endwith %}
+    {% empty %}
+<tr>
+  <td colspan="8">
+    <div class="empty-state">
+      <span class="material-icons-outlined">inventory_2</span>
+      <p>No products found</p>
+    </div>
+  </td>
+</tr>
+  {% endfor %}
+
+</tbody>
+        </table>
+      </div>
+
+      <!-- ── Pagination ── -->
+      <div class="card-footer-pdt">
+        <p class="showing-text">
+          Showing
+          {{ products.start_index }}–{{ products.end_index }}
+          of {{ products.paginator.count }} product{{ products.paginator.count|pluralize }}
+        </p>
+
+        <nav class="pagination-wrap">
+          <!-- Previous -->
+{% if products.has_previous %}
+<a class="pg-btn" href="?page={{ products.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}">
+  <span class="material-icons-outlined">chevron_left</span> Previous
+</a>
+{% else %}
+<span class="pg-btn disabled">
+  <span class="material-icons-outlined">chevron_left</span> Previous
+</span>
+{% endif %}
+
+          <!-- Page numbers -->
+          {% for num in products.paginator.page_range %}
+            {% if num == products.number %}
+              <span class="pg-num active">{{ num }}</span>
+            {% elif num == 1 or num == products.paginator.num_pages or num >= products.number|add:"-2" and num <= products.number|add:"2" %}
+              <a class="pg-num" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}
+{% if selected_category %}&category={{ selected_category }}{% endif %}
+{% if selected_status %}&status={{ selected_status }}{% endif %}">{{ num }}</a>
+            {% elif num == products.number|add:"-3" or num == products.number|add:"3" %}
+              <span class="pg-dots">···</span>
+            {% endif %}
+          {% endfor %}
+
+          <!-- Next -->
+          {% if products.has_next %}
+          <a class="pg-btn" <a class="pg-btn" href="?page={{ products.next_page_number }}
+{% if search %}&search={{ search }}{% endif %}
+{% if selected_category %}&category={{ selected_category }}{% endif %}
+{% if selected_status %}&status={{ selected_status }}{% endif %}">
+  Next <span class="material-icons-outlined">chevron_right</span>
+</a>>
+            Next <span class="material-icons-outlined">chevron_right</span>
+          </a>
+          {% else %}
+          <span class="pg-btn disabled">
+            Next <span class="material-icons-outlined">chevron_right</span>
+          </span>
+          {% endif %}
+        </nav>
+      </div>
+
+    </div><!-- /pdt-card -->
+  </main>
+</div><!-- /app-wrapper -->
+
+<!-- ════════ Theme Toggle ════════ -->
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+  <span class="material-icons-outlined icon-dark">dark_mode</span>
+  <span class="material-icons-outlined icon-light">light_mode</span>
+</button>
+
+<!-- ════════ Delete Confirm Modal ════════ -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <h4>Delete Product?</h4>
+    <p id="deleteModalMsg">This will soft-delete the product and hide it from the store. This action can be undone from the database.</p>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+      <form method="POST" id="deleteForm">
+        {% csrf_token %}
+        <button type="submit" class="btn-danger">
+          <span class="material-icons-outlined" style="font-size:.95rem;vertical-align:middle;">delete</span>
+          Delete
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  /* ── Filter: auto-submit on input/select change ── */
+  let filterTimer;
+  function submitFilter() {
+    clearTimeout(filterTimer);
+    filterTimer = setTimeout(() => {
+      document.getElementById('pageInput').value = 1;
+      document.getElementById('filterForm').submit();
+    }, 400);
+  }
+
+  /* ── Delete Modal ── */
+  function confirmDelete(url, productName) {
+    document.getElementById('deleteForm').action = url;
+    document.getElementById('deleteModalMsg').innerHTML =
+      `This will soft-delete <strong>${productName}</strong> and hide it from the store.`;
+    document.getElementById('deleteModal').classList.add('show');
+  }
+  function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('show');
+  }
+  document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+  });
+
+  /* ── Theme ── */
+  function toggleTheme() {
+    const root = document.documentElement;
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    localStorage.setItem('outfito-theme', next);
+  }
+  (function() {
+    const saved = localStorage.getItem('outfito-theme');
+    if (saved) document.documentElement.dataset.theme = saved;
+  })();
+
+  /* ── Auto-dismiss messages ── */
+  setTimeout(() => {
+    document.querySelectorAll('.msg-item').forEach(el => {
+      el.style.transition = 'opacity .4s';
+      el.style.opacity = '0';
+      setTimeout(() => el.remove(), 400);
+    });
+  }, 4000);
+</script>
+</body>
+</html>

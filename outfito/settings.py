@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,11 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-m&e=9j=t64k8-4)0lkt%)1q8ri1w!+f@bva5tm=d9_=ud$(465'
-
+SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
+DEBUG = os.getenv("DEBUG") == "True"
 ALLOWED_HOSTS = ["*"]
 
 
@@ -47,11 +50,18 @@ INSTALLED_APPS = [
 
     'admin_side.authentication',
     'admin_side.user_management',
+    'admin_side.categories_management',
+    'admin_side.products_management',
+    'admin_side.variants_management', 
 
+    
     'user_side.authentication',
     'user_side.address',
     'user_side.user_profile',
+    'user_side.categories',
+    'user_side.products',
     'user_side.wishlist',
+    'user_side.cart',
 ]
 SITE_ID = 1
 
@@ -78,6 +88,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'user_side.cart.context_processors.cart_count',
             ],
         },
     },
@@ -152,11 +163,12 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'outfito0848@gmail.com'
-EMAIL_HOST_PASSWORD = 'iein jvrt tjdh cjlf'
+
 ACCOUNT_EMAIL_VERIFICATION = "none"
 SOCIALACCOUNT_AUTO_SIGNUP = True
 ACCOUNT_UNIQUE_EMAIL = True
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 ACCOUNT_LOGIN_METHODS = {"email"}

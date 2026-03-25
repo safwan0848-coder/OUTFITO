@@ -4,12 +4,12 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
+from django.db.models import Q
 
 User = get_user_model()
 
 def is_admin(user):
     return user.is_authenticated and user.is_staff
-
 
 @never_cache
 @login_required(login_url='admin-login')
@@ -21,7 +21,10 @@ def admin_user_management(request):
     users = User.objects.filter(is_staff=False)
 
     if search:
-        users = users.filter(email__icontains=search)
+        users = users.filter(
+            Q(email__icontains=search) |
+            Q(username__icontains=search)
+        )
 
     users = users.order_by("-date_joined")
 
@@ -32,7 +35,6 @@ def admin_user_management(request):
     users = paginator.get_page(page)
 
     return render(request, "admin/admin_user_management.html", {"users": users})
-
 
 @never_cache
 @login_required(login_url='admin_login')
