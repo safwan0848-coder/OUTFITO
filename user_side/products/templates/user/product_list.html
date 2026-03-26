@@ -1099,12 +1099,20 @@
      
     
 {% if item.variant and item.variant.id %}
+{% if request.user.is_authenticated %}
 <form method="POST" action="{% url 'add_to_cart' item.variant.id %}">
     {% csrf_token %}
     <button type="submit" class="cart-icon-btn">
         <i class="fa-solid fa-cart-shopping"></i>
     </button>
 </form>
+{% else %}
+<a href="{% url 'login' %}?next={{ request.get_full_path }}">
+    <button type="button" class="cart-icon-btn">
+        <i class="fa-solid fa-cart-shopping"></i>
+    </button>
+</a>
+{% endif %}
 {% else %}
 <button class="cart-icon-btn" disabled>
     <i class="fa-solid fa-cart-shopping"></i>

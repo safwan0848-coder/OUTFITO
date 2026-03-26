@@ -434,9 +434,20 @@
         {% endif %}
 
         <!-- CART BUTTON -->
-        <div class="cart-icon-btn">
-            <i class="fa-solid fa-cart-shopping text-xs"></i>
-        </div>
+        {% if request.user.is_authenticated %}
+<form method="POST" action="{% url 'add_to_cart' variant.id %}">
+    {% csrf_token %}
+    <button type="submit" class="cart-icon-btn">
+        <i class="fa-solid fa-cart-shopping text-xs"></i>
+    </button>
+</form>
+{% else %}
+<a href="{% url 'login' %}?next={{ request.get_full_path }}">
+    <button type="button" class="cart-icon-btn">
+        <i class="fa-solid fa-cart-shopping text-xs"></i>
+    </button>
+</a>
+{% endif %}
 
     </div>
 

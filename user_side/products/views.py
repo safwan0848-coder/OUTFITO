@@ -32,11 +32,15 @@ def product_list(request):
     # Base queryset
     # ----------------------------
     products = (
-        Product.objects
-        .filter(is_deleted=False)
-        .select_related('category')
-        .prefetch_related('variants')
+    Product.objects
+    .filter(
+        is_deleted=False,
+        is_listed=True,
+        category__is_active=True  
     )
+    .select_related('category')
+    .prefetch_related('variants')
+)
 
     products = products.filter(is_listed=True)
 

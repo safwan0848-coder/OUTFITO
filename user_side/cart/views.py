@@ -7,30 +7,19 @@ from django.views.decorators.cache import never_cache
 from .models import Cart, CartItem
 from admin_side.variants_management.models import Variant
 
-# ── Maximum quantity allowed per line item ──
 MAX_QTY = 5
 
 
-# ─────────────────────────────────────────────
-# HELPERS
-# ─────────────────────────────────────────────
-
 def get_or_create_cart(user):
-    """Return user's cart safely."""
-
     if not user.is_authenticated:
-        return None   # important: avoid crash
+        return None
 
     cart, created = Cart.objects.get_or_create(user=user)
     return cart
 
-
 def _variant_is_purchasable(variant):
-    """
-    Returns (ok: bool, reason: str).
-    Checks variant active status, product listed/not-deleted, and stock > 0.
-    """
-    product = variant.product
+
+    product=variant.product
 
     if not variant.is_active:
         return False, "This variant is no longer available."
@@ -43,45 +32,35 @@ def _variant_is_purchasable(variant):
 
     return True, ""
 
-
-# ─────────────────────────────────────────────
-# ADD TO CART  (POST from product_detail)
-# ─────────────────────────────────────────────
-
 @login_required
 @require_POST
 def add_to_cart(request, pk):
 
-    # ✅ USE pk FROM URL (IMPORTANT FIX)
-    variant = get_object_or_404(Variant, pk=pk)
+    variant=get_object_or_404(Variant, pk=pk)
 
     try:
-        quantity = int(request.POST.get('quantity', 1))
+        quantity=int(request.POST.get('quantity', 1))
     except (ValueError, TypeError):
-        quantity = 1
+        quantity =1
 
-    quantity = max(1, quantity)
-    action = request.POST.get('action', 'cart')
+    quantity= max(1, quantity)
+    action=request.POST.get('action', 'cart')
 
-    # ✅ SAFETY CHECK (VERY IMPORTANT)
     if not variant.is_active or variant.stock <= 0:
         messages.error(request, "This product is not available.")
-        return redirect(request.META.get('HTTP_REFERER', 'user_product_list'))
+        return redirect('user_product_list')
 
-    cart = get_or_create_cart(request.user)
+    cart=get_or_create_cart(request.user)
 
-    item, created = CartItem.objects.get_or_create(
+    item, created=CartItem.objects.get_or_create(
         cart=cart,
         variant=variant,
         defaults={
             'product': variant.product,
-            'quantity': 0,
-        }
-    )
+            'quantity': 0,} )
 
-    new_qty = item.quantity + quantity
+    new_qty=item.quantity + quantity
 
-    # ✅ STOCK VALIDATION
     if new_qty > variant.stock:
         if item.quantity >= variant.stock:
             messages.warning(
@@ -93,7 +72,6 @@ def add_to_cart(request, pk):
         new_qty = variant.stock
         messages.warning(request, f"Only {variant.stock} available. Quantity adjusted.")
 
-    # ✅ MAX LIMIT
     MAX_QTY = 5
     if new_qty > MAX_QTY:
         new_qty = MAX_QTY
@@ -102,7 +80,6 @@ def add_to_cart(request, pk):
     item.quantity = new_qty
     item.save()
 
-    # ✅ REMOVE FROM WISHLIST
     try:
         from .models import Wishlist
         Wishlist.objects.filter(
@@ -123,38 +100,18 @@ def add_to_cart(request, pk):
 @login_required(login_url='login')
 def cart_view(request):
 
-    # ----------------------------
-    # Session (optional, safe)
-    # ----------------------------
-    request.session['last_page'] = 'cart_view'
+    cart=get_or_create_cart(request.user)
 
-    # ----------------------------
-    # Get cart + items
-    # ----------------------------
-    cart = get_or_create_cart(request.user)
+    items=list(cart.items.select_related('product', 'variant').order_by('id'))
 
-    items = list(
-        cart.items
-        .select_related('product', 'variant')
-        .order_by('id')
-    )
+    subtotal= 0
+    discount= 0
+    has_oos= False
+    item_count= 0
 
-    # ----------------------------
-    # Initialize totals
-    # ----------------------------
-    subtotal   = 0
-    discount   = 0
-    has_oos    = False
-    item_count = 0
-
-    # ----------------------------
-    # Calculate totals
-    # ----------------------------
     for item in items:
-
         v = item.variant
 
-        # Check unavailable / out of stock
         if (
             not v.is_active or
             v.product.is_deleted or
@@ -162,11 +119,9 @@ def cart_view(request):
             v.stock == 0
         ):
             has_oos = True
-
-        subtotal   += item.subtotal
+        subtotal += item.subtotal
         item_count += item.quantity
 
-        # Discount calculation
         if (
             hasattr(v, 'original_price') and
             v.original_price and
@@ -174,15 +129,9 @@ def cart_view(request):
         ):
             discount += (v.original_price - v.price) * item.quantity
 
-    # ----------------------------
-    # Shipping + total
-    # ----------------------------
-    shipping = 0 if subtotal >= 499 else 49
-    total    = subtotal - discount + shipping
+    shipping= 0 if subtotal >= 499 else 49
+    total=subtotal - discount + shipping
 
-    # ----------------------------
-    # Render (NO CHANGE)
-    # ----------------------------
     return render(request, 'user/cart.html', {
         'items':      items,
         'item_count': item_count,
@@ -200,35 +149,14 @@ def cart_view(request):
 @require_POST
 def update_cart_qty(request, item_id):
 
-    # ----------------------------
-    # Session (optional, safe)
-    # ----------------------------
-    request.session['last_action'] = 'update_cart_qty'
-
-    # ----------------------------
-    # Get cart item
-    # ----------------------------
-    item = get_object_or_404(
-        CartItem,
-        id=item_id,
-        cart__user=request.user
-    )
-
+    item = get_object_or_404( CartItem,id=item_id,cart__user=request.user)
     action = request.POST.get('action', 'increment')
-    v      = item.variant
-
-    # ----------------------------
-    # Re-check variant availability
-    # ----------------------------
+    v = item.variant
     ok, reason = _variant_is_purchasable(v)
-
     if not ok:
         messages.error(request, reason)
         return redirect('cart_view')
 
-    # ----------------------------
-    # Increment quantity
-    # ----------------------------
     if action == 'increment':
 
         if item.quantity >= v.stock:
@@ -241,9 +169,6 @@ def update_cart_qty(request, item_id):
             item.quantity += 1
             item.save()
 
-    # ----------------------------
-    # Decrement quantity
-    # ----------------------------
     elif action == 'decrement':
 
         if item.quantity <= 1:
@@ -254,13 +179,8 @@ def update_cart_qty(request, item_id):
         item.quantity -= 1
         item.save()
 
-    # ----------------------------
-    # Redirect (no change)
-    # ----------------------------
     return redirect('cart_view')
-# ─────────────────────────────────────────────
-# REMOVE ITEM
-# ─────────────────────────────────────────────
+
 
 @login_required
 @require_POST
