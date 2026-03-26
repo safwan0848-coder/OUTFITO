@@ -419,11 +419,11 @@
         <div class="sidebar-section-title mt-4">Management</div>
         <a href="#" class="nav-link-custom"><i class="bi bi-grid-1x2"></i> Dashboard</a>
         <a href="#" class="nav-link-custom"><i class="bi bi-bag"></i> Orders</a>
-        <a href="#" class="nav-link-custom active"><i class="bi bi-box-seam"></i> Products</a>
-        <a href="#" class="nav-link-custom"><i class="bi bi-collection"></i> Categories</a>
+        <a href="{% url 'product_list' %}" class="nav-link-custom active"><i class="bi bi-box-seam"></i> Products</a>
+        <a href="{% url 'category_list' %}">" class="nav-link-custom"><i class="bi bi-collection"></i> Categories</a>
         <a href="#" class="nav-link-custom"><i class="bi bi-ticket-perforated"></i> Coupons</a>
         <a href="#" class="nav-link-custom"><i class="bi bi-percent"></i> Offers</a>
-        <a href="#" class="nav-link-custom"><i class="bi bi-people"></i> Customers</a>
+        <a href="{% url 'admin-user-management' %}" class="nav-link-custom"><i class="bi bi-people"></i> Customers</a>
 
         <a href="#" class="nav-link-custom active-green mt-3"><i class="bi bi-star-fill"></i> Reviews</a>
 

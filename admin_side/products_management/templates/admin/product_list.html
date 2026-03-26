@@ -485,7 +485,7 @@
         <span class="material-icons-outlined">sell</span>
         <span>Offers</span>
       </a>
-      <a class="nav-link-item" href="#">
+      <a class="nav-link-item" href="{% url 'admin-user-management' %}">
         <span class="material-icons-outlined">people</span>
         <span>Customers</span>
       </a>
@@ -514,10 +514,7 @@
         <div class="title-underline"></div>
       </div>
       <div class="header-actions">
-        <button class="btn-notif" title="Notifications">
-          <span class="material-icons-outlined" style="font-size:1.2rem;">notifications</span>
-          <span class="notif-dot"></span>
-        </button>
+
         <a class="btn-add" href="{% url 'add_product' %}">
           <span class="material-icons-outlined">add</span>
           Add Product

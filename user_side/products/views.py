@@ -11,14 +11,6 @@ from django.views.decorators.cache import never_cache
 @never_cache
 def product_list(request):
 
-    # ----------------------------
-    # Session (safe)
-    # ----------------------------
-    request.session['last_page'] = 'product_list'
-
-    # ----------------------------
-    # Query parameters
-    # ----------------------------
     query       = request.GET.get('q', '').strip()
     sort_by     = request.GET.get('sort', 'default')
     cat_slug    = request.GET.get('category', '')
@@ -28,9 +20,6 @@ def product_list(request):
     size_filter = request.GET.getlist('size')
     type_filter = request.GET.get('type', '')
 
-    # ----------------------------
-    # Base queryset
-    # ----------------------------
     products = (
     Product.objects
     .filter(
@@ -44,9 +33,6 @@ def product_list(request):
 
     products = products.filter(is_listed=True)
 
-    # ----------------------------
-    # Search
-    # ----------------------------
     if query:
         products = products.filter(
             Q(name__icontains=query) |
@@ -54,9 +40,6 @@ def product_list(request):
             Q(category__category_name__icontains=query)
         )
 
-    # ----------------------------
-    # Filters
-    # ----------------------------
     if cat_slug:
         products = products.filter(category__id=cat_slug)
 
@@ -70,9 +53,6 @@ def product_list(request):
             variants__stock__gt=0
         ).distinct()
 
-    # ----------------------------
-    # Price filters
-    # ----------------------------
     if price_min:
         try:
             products = products.filter(
@@ -91,9 +71,6 @@ def product_list(request):
         except ValueError:
             pass
 
-    # ----------------------------
-    # Sorting
-    # ----------------------------
     SORT_MAP = {
         'price_asc':  'variants__price',
         'price_desc': '-variants__price',
@@ -113,9 +90,6 @@ def product_list(request):
     else:
         products = products.order_by(order_field)
 
-    # ----------------------------
-    # Build product data
-    # ----------------------------
     product_data = []
 
     for product in products:
@@ -151,25 +125,16 @@ def product_list(request):
             'is_new': False,
         })
 
-    # ----------------------------
-    # Discount sorting
-    # ----------------------------
     if sort_by == 'discount':
         product_data.sort(
             key=lambda x: x['discount'] or 0,
             reverse=True
         )
 
-    # ----------------------------
-    # Categories
-    # ----------------------------
     categories = Category.objects.filter(
         is_active=True
     ).order_by('category_name')
 
-    # ----------------------------
-    # Price range
-    # ----------------------------
     price_bounds = Product.objects.filter(
         is_deleted=False,
         is_listed=True,
@@ -182,15 +147,9 @@ def product_list(request):
     global_min = int(price_bounds['min_price'] or 0)
     global_max = int(price_bounds['max_price'] or 10000)
 
-    # ----------------------------
-    # Pagination
-    # ----------------------------
     paginator = Paginator(product_data, 8)
     page_obj  = paginator.get_page(page_num)
 
-    # ----------------------------
-    # Selected category
-    # ----------------------------
     selected_category = None
     if cat_slug:
         try:
@@ -200,9 +159,6 @@ def product_list(request):
 
     sizes = ["XS", "S", "M", "L", "XL", "XXL"]
 
-    # ----------------------------
-    # Final render (NO CHANGE)
-    # ----------------------------
     return render(request, 'user/product_list.html', {
         'product_data':      page_obj.object_list,
         'page_obj':          page_obj,
@@ -230,14 +186,8 @@ def is_user(user):
 @never_cache
 def product_detail(request, pk):
 
-    # ----------------------------
-    # Session handling
-    # ----------------------------
     request.session['last_viewed_product'] = pk
 
-    # ----------------------------
-    # Get product
-    # ----------------------------
     product = get_object_or_404(
         Product,
         pk=pk,
@@ -245,9 +195,6 @@ def product_detail(request, pk):
         is_listed=True
     )
 
-    # ----------------------------
-    # Get variants
-    # ----------------------------
     all_variants = list(
         Variant.objects.filter(
             product=product,
@@ -255,15 +202,9 @@ def product_detail(request, pk):
         )
     )
 
-    # ----------------------------
-    # GET params
-    # ----------------------------
     selected_size  = request.GET.get('size', '').strip()
     selected_color = request.GET.get('color', '').strip()
 
-    # ----------------------------
-    # Default variant
-    # ----------------------------
     display_variant = next(
         (v for v in all_variants if v.is_default),
         None
@@ -275,9 +216,6 @@ def product_detail(request, pk):
         if not selected_color:
             selected_color = display_variant.color
 
-    # ----------------------------
-    # Variant selection logic
-    # ----------------------------
     if selected_size and selected_color:
         v = next(
             (v for v in all_variants
@@ -312,16 +250,10 @@ def product_detail(request, pk):
             display_variant = v
             selected_size = v.size
 
-    # ----------------------------
-    # Final sync
-    # ----------------------------
     if display_variant:
         selected_size  = display_variant.size
         selected_color = display_variant.color
 
-    # ----------------------------
-    # Unique colors
-    # ----------------------------
     seen_colors = set()
     unique_color_variants = []
 
@@ -331,9 +263,6 @@ def product_detail(request, pk):
             seen_colors.add(color_key)
             unique_color_variants.append(v)
 
-    # ----------------------------
-    # Size logic
-    # ----------------------------
     SIZE_ORDER = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
     size_variant_map = {}
 
@@ -357,9 +286,6 @@ def product_detail(request, pk):
             best_v = size_variant_map[sz]
             available_sizes.append((sz, best_v.stock > 0, best_v.color))
 
-    # ----------------------------
-    # Related products
-    # ----------------------------
     related_qs = Product.objects.filter(
         category=product.category,
         is_deleted=False,
@@ -377,25 +303,16 @@ def product_detail(request, pk):
 
         related_products.append(rp)
 
-    # ----------------------------
-    # Wishlist
-    # ----------------------------
     in_wishlist = False
     if request.user.is_authenticated:
         in_wishlist = False
 
-    # ----------------------------
-    # Cart count (IMPORTANT for UI)
-    # ----------------------------
     cart_count = 0
     if request.user.is_authenticated:
         cart = Cart.objects.filter(user=request.user).first()
         if cart:
             cart_count = sum(i.quantity for i in cart.items.all())
 
-    # ----------------------------
-    # Reviews
-    # ----------------------------
     avg_rating = 4.2
     review_count = 3
 
@@ -413,9 +330,6 @@ def product_detail(request, pk):
         (1, 0, 0),
     ]
 
-    # ----------------------------
-    # Final render (NO CHANGE → frontend safe)
-    # ----------------------------
     return render(request, 'user/product_detail.html', {
         'product': product,
         'display_variant': display_variant,

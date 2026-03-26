@@ -4,12 +4,7 @@ from django.db.models import Count, Min, Max, Q
 from admin_side.products_management.models import Product
 from admin_side.categories_management.models import Category
 from admin_side.variants_management.models import Variant
- 
- 
-# ──────────────────────────────────────────────
-# HELPERS
-# ──────────────────────────────────────────────
- 
+
 SORT_OPTIONS = [
     ('default',    'Featured'),
     ('price_asc',  'Price: Low to High'),
@@ -19,10 +14,6 @@ SORT_OPTIONS = [
 ]
  
 SIZE_ORDER = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
-
-# ──────────────────────────────────────────────
-# CATEGORIES LANDING PAGE
-# ──────────────────────────────────────────────
  
 def user_category_list(request):
     """
